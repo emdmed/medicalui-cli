@@ -1,0 +1,19 @@
+{
+  "name": "medical-ui-cli",
+  "version": "0.1",
+  "main": "index.js",
+  "bin": {
+    "medical-ui": "./index.js"
+  },
+  "scripts": {
+    "start": "node index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "a1gokn8t",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "commander": "^13.1.0"
+  }
+}
