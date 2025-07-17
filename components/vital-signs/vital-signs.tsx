@@ -46,7 +46,7 @@ export interface IVitalSignsProps {
 
 const VitalSigns = ({
   data,
-  minimizedVertical = true,
+  minimizedVertical = false,
   onData,
   assistant = true,
   useFahrenheit = true,
@@ -131,7 +131,6 @@ const VitalSigns = ({
         saturation: bloodOxygenValue,
         fiO2: fio2Value,
       },
-      fhirBundle: currentFhirBundle,
       timestamp: new Date().toISOString(),
     };
   }, [
@@ -141,7 +140,7 @@ const VitalSigns = ({
     temperatureValue,
     bloodOxygenValue,
     fio2Value,
-    currentFhirBundle,
+   // currentFhirBundle,
   ]);
 
   const {
@@ -166,8 +165,6 @@ const VitalSigns = ({
     bloodOxygenValue,
     fio2Value,
     currentFhirBundle,
-    onData,
-    getCurrentVitalSignsData,
   ]);
 
   const closeAnalysis = () => {
