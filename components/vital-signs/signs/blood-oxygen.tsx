@@ -206,7 +206,7 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
             {bloodOxygenValue !== null ? (
               <span className="flex items-center gap-2">
                 {bloodOxygenValue}{" "}
-                <small>
+                <small className="flex items-center gap-2">
                   %{" "}
                   <Badge
                     className="ms-1"
