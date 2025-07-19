@@ -99,21 +99,19 @@ const VitalSigns = ({
     setFio2Value(isNaN(numValue) ? null : numValue);
   }, []);
 
-  // Add wrapper function for blood pressure to handle type conversion
   const handleBloodPressureChange = useCallback((value: { systolic: string | number | null; diastolic: string | number | null }) => {
     const convertedValue = {
       systolic: value.systolic ? (typeof value.systolic === "string" ? parseFloat(value.systolic) : value.systolic) : null,
       diastolic: value.diastolic ? (typeof value.diastolic === "string" ? parseFloat(value.diastolic) : value.diastolic) : null,
     };
-    
-    // Convert NaN to null for safety
+
     if (convertedValue.systolic !== null && isNaN(convertedValue.systolic)) {
       convertedValue.systolic = null;
     }
     if (convertedValue.diastolic !== null && isNaN(convertedValue.diastolic)) {
       convertedValue.diastolic = null;
     }
-    
+
     setBloodPressureValue(convertedValue);
   }, []);
 
@@ -150,6 +148,7 @@ const VitalSigns = ({
     isLoading,
     resetAnalysis,
     showAnalysis,
+    clearAnalysis
   } = useAnalyzeVitalSigns({ route: assistantRoute, getCurrentVitalSignsData });
 
   useEffect(() => {
@@ -278,6 +277,7 @@ const VitalSigns = ({
             <div className="flex items-center space-x-2">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 text-foreground"></div>
               <p className="text-xs">Analyzing...</p>
+              <Button onClick={()=> clearAnalysis()}  variant="ghost" size="icon"><X/></Button>
             </div>
           </Card>
         </div>

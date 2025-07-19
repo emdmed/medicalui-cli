@@ -10,7 +10,6 @@ export const useAnalyzeVitalSigns = ({ route, getCurrentVitalSignsData }) => {
     setIsLoading(true);
     setError("");
     setAnalysis("");
-
     const vitalSigns = getCurrentVitalSignsData();
     if (!route) return;
     try {
@@ -21,13 +20,10 @@ export const useAnalyzeVitalSigns = ({ route, getCurrentVitalSignsData }) => {
         },
         body: JSON.stringify({ vitalSigns }),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || "Failed to analyze vital signs");
       }
-
       setAnalysis(data.analysis);
       setShowAnalysis(true);
     } catch (err) {
@@ -47,9 +43,16 @@ export const useAnalyzeVitalSigns = ({ route, getCurrentVitalSignsData }) => {
     setError("");
   };
 
+  const clearAnalysis = () => {
+    setAnalysis("");
+    setShowAnalysis(false);
+    setIsLoading(false);
+  };
+
   return {
     analyzeVitalSigns,
     resetAnalysis,
+    clearAnalysis,
     isLoading,
     error,
     analysis,
