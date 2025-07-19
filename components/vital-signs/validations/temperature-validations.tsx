@@ -31,6 +31,7 @@ export const validateTemperatureInput = (
   value: string | number,
   useFahrenheit: boolean = true
 ): boolean => {
+  if(!value) return true
   const num = parseFloat(value.toString());
   const limits = useFahrenheit ? TEMPERATURE_LIMITS.FAHRENHEIT : TEMPERATURE_LIMITS.CELSIUS;
   
@@ -91,6 +92,7 @@ export const getTemperatureStatus = (
 };
 
 export const parseTemperatureValue = (value: string | number): number => {
+  if(!value) return null
   const parsed = parseFloat(value.toString());
   return isNaN(parsed) ? 0 : parsed;
 };

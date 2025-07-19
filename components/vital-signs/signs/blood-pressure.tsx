@@ -158,7 +158,7 @@ const BloodPressure = ({
             className="w-[50px] text-center"
             maxLength={3}
           />
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             <Button
               size="icon"
               variant="ghost"
@@ -186,7 +186,7 @@ const BloodPressure = ({
         </EditSection>
         
         {bloodPressureValue?.systolic && bloodPressureValue?.diastolic ? (
-          <span className="flex items-center gap-2">
+          <span className="flex items-baseline gap-2 hover:text-accent-foreground transition-all">
             {bloodPressureValue.systolic}/{bloodPressureValue.diastolic}{" "}
             <small className="opacity-50">mmHg</small>
           </span>
@@ -200,11 +200,6 @@ const BloodPressure = ({
           <VitalSignsAlert text={currentBPCategory.category || "Warning"} />
         )}
         
-        {validationError && (
-          <div className="absolute top-full left-0 mt-1 text-sm text-red-500 bg-white border border-red-200 rounded px-2 py-1 shadow-sm z-10">
-            {validationError}
-          </div>
-        )}
       </div>
     </div>
   );

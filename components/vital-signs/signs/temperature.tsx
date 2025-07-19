@@ -135,7 +135,7 @@ const Temperature: React.FC<TemperatureProps> = ({
 
         <div>
           {temperatureValue ? (
-            <span className="flex items-center gap-2">
+            <span className="flex items-baseline gap-2  hover:text-accent-foreground transition-all">
               {temperatureValue}{" "}
               <small className="opacity-50">
                 {useFahrenheit ? "°F" : "°C"}

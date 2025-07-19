@@ -204,10 +204,10 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
         <div className="flex items-center gap-2">
           <div className="flex items-center">
             {bloodOxygenValue !== null ? (
-              <span className="flex items-center gap-2">
+              <span className="flex items-baseline gap-2">
                 {bloodOxygenValue}{" "}
-                <small className="flex items-center gap-2">
-                  %{" "}
+                <small className="flex items-baseline gap-2">
+                  <small className="opacity-50">%</small>
                   <Badge
                     className="ms-1"
                     variant={BloodOxygenValidations.fio2.isSupplemental(fio2Value as number) ? "destructive" : "secondary"}

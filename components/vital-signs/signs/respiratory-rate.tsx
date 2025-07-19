@@ -130,7 +130,7 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
         </EditSection>
         <div>
           {respiratoryRateValue ? (
-            <span className="flex items-center gap-2">
+            <span className="flex items-baseline gap-2  hover:text-accent-foreground transition-all">
               {respiratoryRateValue}{" "}
               <small className="opacity-50">breaths/min</small>
             </span>
@@ -144,12 +144,6 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
       
       {currentCategory && currentCategory.category !== "Normal" && (
         <VitalSignsAlert text={currentCategory.category} />
-      )}
-      
-      {validationError && (
-        <div className="absolute top-full left-0 mt-1 text-sm text-red-500 bg-white border border-red-200 rounded px-2 py-1 shadow-sm z-10">
-          {validationError}
-        </div>
       )}
     </div>
   );
