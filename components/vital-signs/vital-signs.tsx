@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircleQuestionIcon, X } from "lucide-react";
 import BloodPressure from "@/components/vital-signs/signs/blood-pressure";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import VitalSignsFhir from "@/components/vital-signs/components/vital-signs-fhir";
 import { FhirBundle } from "@/components/vital-signs/components/vital-signs-fhir";
 import { useAnalyzeVitalSigns } from "@/components/vital-signs/hooks/useAnalyze";
+import { useClickOutside } from "./hooks/useClickOutside";
 
 export interface IBloodOxygen {
   saturation: number | null;
@@ -54,6 +56,11 @@ const VitalSigns = ({
   border = true,
   assistantRoute = "",
 }: IVitalSignsProps) => {
+  // Use the custom hook for click outside functionality
+  const componentRef = useClickOutside(() => {
+    setClickedComponent("");
+  });
+  
   const [bloodPressureValue, setBloodPressureValue] = useState({
     systolic: data?.bloodPressure?.systolic || null,
     diastolic: data?.bloodPressure?.diastolic || null,
@@ -171,7 +178,7 @@ const VitalSigns = ({
   };
 
   return (
-    <div className="relative animate-in fade-in-1 duration-200">
+    <div ref={componentRef} className="relative animate-in fade-in-1 duration-200">
       <VitalSignsFhir
         bloodPressureValue={bloodPressureValue}
         heartRateValue={heartRateValue}
