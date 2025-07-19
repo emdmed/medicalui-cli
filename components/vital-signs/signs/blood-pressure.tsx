@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, Trash2 } from "lucide-react";
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
-import { 
-  validateBloodPressureInput, 
-  isValidBloodPressureInput, 
+import {
+  validateBloodPressureInput,
+  isValidBloodPressureInput,
   getBloodPressureCategory,
   parseBloodPressureValues,
-  type BloodPressureValue 
+  type BloodPressureValue,
 } from "@/components/vital-signs/validations/blood-pressure-validations";
 
 interface BloodPressureProps {
@@ -34,13 +33,13 @@ const BloodPressure = ({
 
   const onSystolicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
-    if (isValidBloodPressureInput(value, 'systolic')) {
+
+    if (isValidBloodPressureInput(value, "systolic")) {
       setBloodPressureValue({
         ...bloodPressureValue,
         systolic: value,
       });
-      
+
       if (validationError) {
         setValidationError(null);
       }
@@ -49,13 +48,13 @@ const BloodPressure = ({
 
   const onDiastolicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
-    if (isValidBloodPressureInput(value, 'diastolic')) {
+
+    if (isValidBloodPressureInput(value, "diastolic")) {
       setBloodPressureValue({
         ...bloodPressureValue,
         diastolic: value,
       });
-      
+
       if (validationError) {
         setValidationError(null);
       }
@@ -81,14 +80,14 @@ const BloodPressure = ({
     }
 
     const parsedValues = parseBloodPressureValues(bloodPressureValue);
-    
+
     if (parsedValues) {
       setBloodPressureValue({
         systolic: parsedValues.systolic,
         diastolic: parsedValues.diastolic,
       });
     }
-    
+
     setValidationError(null);
   };
 
@@ -123,7 +122,7 @@ const BloodPressure = ({
   };
 
   const parsedValues = parseBloodPressureValues(bloodPressureValue);
-  const currentBPCategory = parsedValues 
+  const currentBPCategory = parsedValues
     ? getBloodPressureCategory(parsedValues.systolic, parsedValues.diastolic)
     : null;
 
@@ -138,6 +137,9 @@ const BloodPressure = ({
           clickedComponent={clickedComponent}
           parentComponent="bloodPressure"
           editable={editable}
+          nextComponent={() => setClickedComponent("heartRate")}
+          handleCancel={handleCancel}
+          handleDelete={handleDelete}
         >
           <Input
             ref={systolicInputRef}
@@ -158,7 +160,7 @@ const BloodPressure = ({
             className="w-[50px] text-center"
             maxLength={3}
           />
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <Button
               size="icon"
               variant="ghost"
@@ -182,9 +184,9 @@ const BloodPressure = ({
             >
               <Trash2 size={4} />
             </Button>
-          </div>
+          </div> */}
         </EditSection>
-        
+
         {bloodPressureValue?.systolic && bloodPressureValue?.diastolic ? (
           <span className="flex items-baseline gap-2 hover:text-accent-foreground transition-all">
             {bloodPressureValue.systolic}/{bloodPressureValue.diastolic}{" "}
@@ -199,7 +201,6 @@ const BloodPressure = ({
         {currentBPCategory && (
           <VitalSignsAlert text={currentBPCategory.category || "Warning"} />
         )}
-        
       </div>
     </div>
   );

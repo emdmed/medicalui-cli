@@ -1,14 +1,13 @@
 import { useRef, useEffect, RefObject } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Trash2, Check } from "lucide-react";
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
-import { 
-  validateHeartRateInput, 
-  getHeartRateCategory, 
+import {
+  validateHeartRateInput,
+  getHeartRateCategory,
   parseHeartRateValue,
-  HEART_RATE_LIMITS 
+  HEART_RATE_LIMITS,
 } from "@/components/vital-signs/validations/heart-rate-validations";
 
 interface HeartRateProps {
@@ -77,6 +76,9 @@ const HeartRate = ({
           clickedComponent={clickedComponent}
           parentComponent="heartRate"
           editable={editable}
+          handleCancel={handleCancel}
+          handleDelete={handleDelete}
+          nextComponent={() => setClickedComponent("respiratoryRate")}
         >
           <div className="flex items-center gap-2">
             <Input
@@ -88,30 +90,6 @@ const HeartRate = ({
               max={HEART_RATE_LIMITS.MAX.toString()}
               onChange={onChange}
             />
-            <div className="flex flex-col gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  setClickedComponent("respiratoryRate");
-                }}
-                className="flex items-center gap-1 h-1/2"
-              >
-                <Check />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  handleDelete();
-                }}
-                className="flex items-center gap-1 h-1/2"
-              >
-                <Trash2 />
-              </Button>
-            </div>
           </div>
         </EditSection>
         <div>

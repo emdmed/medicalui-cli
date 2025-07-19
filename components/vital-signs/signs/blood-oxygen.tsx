@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Check, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
@@ -143,6 +142,8 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
             clickedComponent={clickedComponent}
             parentComponent="bloodOxygen"
             editable={editable}
+            handleCancel={handleCancel}
+            handleDelete={handleDelete}
           >
             <div className="flex items-center gap-2">
               <Input
@@ -172,30 +173,6 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation();
-                    handleCancel();
-                  }}
-                  className="h-1/2"
-                >
-                  <Check />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation();
-                    handleDelete();
-                  }}
-                  className="h-1/2"
-                >
-                  <Trash2 />
-                </Button>
               </div>
             </div>
           </EditSection>

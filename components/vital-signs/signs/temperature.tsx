@@ -1,13 +1,11 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components//ui/button";
-import { Trash2, Check } from "lucide-react";
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
 import {
   validateTemperatureInput,
   getTemperatureStatus,
-  parseTemperatureValue,
   getTemperatureLimits,
 } from "@/components/vital-signs/validations/temperature-validations";
 
@@ -29,21 +27,12 @@ const Temperature: React.FC<TemperatureProps> = ({
   editable
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [displayEdit, setDisplayEdit] = useState<boolean>(false);
 
-  const handleSave = (): void => {
-    if (validateTemperatureInput(temperatureValue, useFahrenheit)) {
-      setTemperatureValue(parseTemperatureValue(temperatureValue));
+  useEffect(() => {
+    if (clickedComponent === "temperature" && inputRef.current) {
+      inputRef.current.focus();
     }
-  };
-
-  useEffect(() => {
-    if (clickedComponent === "temperature") setDisplayEdit(true);
   }, [clickedComponent]);
-
-  useEffect(() => {
-    if (displayEdit && inputRef.current) inputRef.current.focus();
-  }, [displayEdit]);
 
   const handleDelete = (): void => {
     if (inputRef.current) {
@@ -53,14 +42,12 @@ const Temperature: React.FC<TemperatureProps> = ({
   };
 
   const handleCancel = (): void => {
-    setDisplayEdit(false);
     setClickedComponent("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter" && validateTemperatureInput(e.currentTarget.value, useFahrenheit)) {
-      handleSave();
-      setClickedComponent("bloodOxygen");
+      handleCancel();
     } else if (e.key === "Escape") {
       handleCancel();
     }
@@ -68,7 +55,10 @@ const Temperature: React.FC<TemperatureProps> = ({
 
   const handleEditClick = (): void => {
     setClickedComponent("temperature");
-    setDisplayEdit(true);
+    
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -81,17 +71,6 @@ const Temperature: React.FC<TemperatureProps> = ({
   const temperatureStatus = getTemperatureStatus(temperatureValue, useFahrenheit);
   const limits = getTemperatureLimits(useFahrenheit);
 
-  const handleSaveClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.stopPropagation();
-    handleSave();
-    setClickedComponent("bloodOxygen");
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.stopPropagation();
-    handleDelete();
-  };
-
   return (
     <div className="px-2 cursor-pointer relative">
       <div className="flex items-center" onClick={handleEditClick}>
@@ -99,6 +78,9 @@ const Temperature: React.FC<TemperatureProps> = ({
           clickedComponent={clickedComponent}
           parentComponent="temperature"
           editable={editable}
+          handleCancel={handleCancel}
+          handleDelete={handleDelete}
+          nextComponent={() => setClickedComponent("bloodOxygen")}
         >
           <div className="flex items-center gap-2">
             <Input
@@ -112,24 +94,6 @@ const Temperature: React.FC<TemperatureProps> = ({
               step="0.1"
               type="number"
             />
-            <div className="flex flex-col gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleSaveClick}
-                className="h-1/2"
-              >
-                <Check />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleDeleteClick}
-                className="h-1/2"
-              >
-                <Trash2 />
-              </Button>
-            </div>
           </div>
         </EditSection>
 

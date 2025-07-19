@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, Trash2 } from "lucide-react";
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
 import {
@@ -9,7 +8,7 @@ import {
   isValidRespiratoryRateInput,
   getRespiratoryRateCategory,
   parseRespiratoryRateValue,
-  RESPIRATORY_RATE_LIMITS
+  RESPIRATORY_RATE_LIMITS,
 } from "@/components/vital-signs/validations/respiratory-rate-validations";
 
 interface RespiratoryRateProps {
@@ -25,19 +24,19 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
   setRespiratoryRateValue,
   setClickedComponent,
   clickedComponent,
-  editable
+  editable,
 }) => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = (): void => {
     const error = validateRespiratoryRateInput(respiratoryRateValue);
-    
+
     if (error) {
       setValidationError(error);
       return;
     }
-    
+
     setRespiratoryRateValue(parseRespiratoryRateValue(respiratoryRateValue));
     setValidationError(null);
   };
@@ -58,7 +57,7 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
-    
+
     if (isValidRespiratoryRateInput(value)) {
       setRespiratoryRateValue(value);
       if (validationError) {
@@ -91,6 +90,9 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
           clickedComponent={clickedComponent}
           parentComponent="respiratoryRate"
           editable={editable}
+          nextComponent={() => setClickedComponent("temperature")}
+          handleCancel={handleCancel}
+          handleDelete={handleDelete}
         >
           <Input
             ref={inputRef}
@@ -102,31 +104,6 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
             min={RESPIRATORY_RATE_LIMITS.MIN.toString()}
             max={RESPIRATORY_RATE_LIMITS.MAX.toString()}
           />
-          <div className="flex flex-col gap-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                handleSave();
-                setClickedComponent("temperature");
-              }}
-              className="h-1/2"
-            >
-              <Check />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                handleDelete();
-              }}
-              className="h-1/2"
-            >
-              <Trash2 />
-            </Button>
-          </div>
         </EditSection>
         <div>
           {respiratoryRateValue ? (
@@ -141,7 +118,7 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
           )}
         </div>
       </div>
-      
+
       {currentCategory && currentCategory.category !== "Normal" && (
         <VitalSignsAlert text={currentCategory.category} />
       )}
