@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,51 +61,39 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
   clickedComponent,
   editable
 }) => {
-  const [inputValue, setInputValue] = useState<string>("");
-  const [selectedFio2, setSelectedFio2] = useState<string>(defaultFio2Value.toString());
   const inputRef = useRef<HTMLInputElement>(null);
+  const selectRef = useRef<HTMLButtonElement>(null);
 
   const currentFio2Value = fio2Value ? fio2Value.toString() : defaultFio2Value.toString();
-  const currentInputValue = bloodOxygenValue ? bloodOxygenValue.toString() : "";
   const isLow: boolean = bloodOxygenValue !== null && BloodOxygenValidations.spo2.isLow(bloodOxygenValue);
 
-  const handleSave = (bloodOxygenInputValue: string, fio2InputValue: string): void => {
-    if (BloodOxygenValidations.spo2.isValid(bloodOxygenInputValue)) {
-      setBloodOxygenValue(parseInt(bloodOxygenInputValue));
-
-      if (fio2InputValue && BloodOxygenValidations.fio2.isValid(fio2InputValue)) {
-        setFio2Value(parseInt(fio2InputValue));
-      } else if (fio2Value === null) {
-        setFio2Value(defaultFio2Value);
-      }
+  useEffect(() => {
+    if (clickedComponent === "bloodOxygen" && inputRef.current) {
+      inputRef.current.focus();
     }
-  };
+  }, [clickedComponent]);
 
   const handleDelete = (): void => {
-    setInputValue("");
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
     setBloodOxygenValue(null);
     setFio2Value(defaultFio2Value);
-    setSelectedFio2(defaultFio2Value.toString());
   };
 
   const handleCancel = (): void => {
     setClickedComponent("");
-    setInputValue("");
-    setSelectedFio2(defaultFio2Value.toString());
   };
 
   const handleFio2SelectChange: SelectChangeHandler = (value: string): void => {
-    setSelectedFio2(value);
     setFio2Value(parseInt(value));
   };
 
   const handleKeyDown: KeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     const bloodOxygenInputValue: string = e.currentTarget.value;
-    const fio2InputValue: string = selectedFio2;
 
     if (e.key === "Enter" && BloodOxygenValidations.spo2.isValid(bloodOxygenInputValue)) {
-      handleSave(bloodOxygenInputValue, fio2InputValue);
-      setClickedComponent("");
+      setClickedComponent(""); // or next component
     } else if (e.key === "Escape") {
       handleCancel();
     }
@@ -113,32 +101,21 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
 
   const handleInputChange: InputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value: string = e.target.value;
-    setInputValue(value);
 
     if (BloodOxygenValidations.spo2.isValid(value)) {
       setBloodOxygenValue(parseInt(value));
-    } else if (value === "") {
-      setBloodOxygenValue(null);
     }
   };
 
   const handleEditClick = (): void => {
     setClickedComponent("bloodOxygen");
-    setInputValue(currentInputValue);
-    setSelectedFio2(currentFio2Value);
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
   };
 
   return (
-    <div className="px-2 cursor-pointer relative">
-      <div
-        className={`flex items-center w-full`}
-        onClick={handleEditClick}
-      >
+    <div className="px-2 cursor-pointer relative" onClick={handleEditClick}>
+      <div className="flex items-center w-full">
         <div className="flex items-center">
-         <EditSection
+          <EditSection
             clickedComponent={clickedComponent}
             parentComponent="bloodOxygen"
             editable={editable}
@@ -149,7 +126,7 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
               <Input
                 ref={inputRef}
                 className="w-[60px] text-center"
-                value={inputValue}
+                defaultValue={bloodOxygenValue || ""}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 min={BloodOxygenValidations.spo2.MIN_VALUE}
@@ -159,10 +136,10 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
 
               <div className="flex gap-2 items-center">
                 <Select
-                  value={selectedFio2}
+                  value={currentFio2Value}
                   onValueChange={handleFio2SelectChange}
                 >
-                  <SelectTrigger className="w-[90px]">
+                  <SelectTrigger ref={selectRef} className="w-[90px]">
                     <SelectValue placeholder="Select FiO2" />
                   </SelectTrigger>
                   <SelectContent>

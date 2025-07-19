@@ -48,6 +48,7 @@ const Temperature: React.FC<TemperatureProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter" && validateTemperatureInput(e.currentTarget.value, useFahrenheit)) {
       handleCancel();
+          setClickedComponent("bloodOxygen");
     } else if (e.key === "Escape") {
       handleCancel();
     }
