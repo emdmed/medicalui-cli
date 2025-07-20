@@ -112,7 +112,7 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
               <small className="opacity-50">breaths/min</small>
             </span>
           ) : (
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" className="text-xs">
               Respiratory rate
             </Button>
           )}

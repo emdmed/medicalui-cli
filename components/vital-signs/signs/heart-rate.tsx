@@ -98,7 +98,7 @@ const HeartRate = ({
               {heartRateValue} <small className="opacity-50">beats/min</small>
             </span>
           ) : (
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" className="text-xs">
               Heart rate
             </Button>
           )}

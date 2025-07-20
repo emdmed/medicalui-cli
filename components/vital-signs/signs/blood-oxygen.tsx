@@ -171,7 +171,7 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
                 </small>
               </span>
             ) : (
-              <Button size="sm" variant="ghost">
+              <Button size="sm" variant="ghost" className="text-xs">
                 O2 Saturation
               </Button>
             )}

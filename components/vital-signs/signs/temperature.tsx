@@ -107,7 +107,7 @@ const Temperature: React.FC<TemperatureProps> = ({
               </small>
             </span>
           ) : (
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" className="text-xs">
               Temperature
             </Button>
           )}

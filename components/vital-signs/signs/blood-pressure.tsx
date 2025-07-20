@@ -160,31 +160,6 @@ const BloodPressure = ({
             className="w-[50px] text-center"
             maxLength={3}
           />
-          {/* <div className="flex flex-col gap-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSave();
-                setClickedComponent("heartRate");
-              }}
-              className="flex items-center gap-1 h-1/2"
-            >
-              <Check size={8} />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete();
-              }}
-              className="flex items-center gap-1 h-1/2"
-            >
-              <Trash2 size={4} />
-            </Button>
-          </div> */}
         </EditSection>
 
         {bloodPressureValue?.systolic && bloodPressureValue?.diastolic ? (
@@ -193,7 +168,7 @@ const BloodPressure = ({
             <small className="opacity-50">mmHg</small>
           </span>
         ) : (
-          <Button size="sm" variant="ghost">
+          <Button size="sm" variant="ghost" className="text-xs">
             Blood pressure
           </Button>
         )}
