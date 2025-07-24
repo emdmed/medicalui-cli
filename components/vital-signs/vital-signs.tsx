@@ -125,6 +125,20 @@ const VitalSigns = ({
   const handleFhirUpdate = useCallback((fhirBundle) => {
     setCurrentFhirBundle(fhirBundle);
   }, []);
+  
+  useEffect(() => {
+    if (data) {
+      setBloodPressureValue({
+        systolic: data.bloodPressure?.systolic || null,
+        diastolic: data.bloodPressure?.diastolic || null,
+      });
+      setHeartRateValue(data.heartRate || null);
+      setRespiratoryRateValue(data.respiratoryRate || null);
+      setTemperatureValue(data.temperature || null);
+      setBloodOxygenValue(data.bloodOxygen?.saturation || null);
+      setFio2Value(data.bloodOxygen?.fiO2 || null);
+    }
+  }, [data]);
 
   const getCurrentVitalSignsData = useCallback(() => {
     return {
