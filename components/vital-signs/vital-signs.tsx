@@ -1,50 +1,23 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircleQuestionIcon, X } from "lucide-react";
 import BloodPressure from "@/components/vital-signs/signs/blood-pressure";
 import HeartRate from "@/components/vital-signs/signs/heart-rate";
 import RespiratoryRate from "@/components/vital-signs/signs/respiratory-rate";
 import Temperature from "@/components/vital-signs/signs/temperature";
-
 import BloodOxygen from "@/components/vital-signs/signs/blood-oxygen";
 import { Button } from "@/components/ui/button";
 import VitalSignsFhir from "@/components/vital-signs/components/vital-signs-fhir";
-import { FhirBundle } from "@/components/vital-signs/components/vital-signs-fhir";
 import { useAnalyzeVitalSigns } from "@/components/vital-signs/hooks/useAnalyze";
 import { useClickOutside } from "./hooks/useClickOutside";
+import { useVitalSigns } from "./hooks/useVitalSigns";
 
-export interface IBloodOxygen {
-  saturation: number | null;
-  fiO2: number | null;
-}
-
-export interface IBloodPressureValue {
-  systolic: number | null;
-  diastolic: number | null;
-}
-export interface IVitalSignsData {
-  bloodPressure: IBloodPressureValue;
-  heartRate: number | null;
-  respiratoryRate: number | null;
-  temperature: number | null;
-  bloodOxygen: IBloodOxygen;
-  fhirBundle?: unknown;
-  timestamp?: string;
-}
-
-export interface IVitalSignsProps {
-  data?: IVitalSignsData;
-  minimizedVertical?: boolean;
-  onData?: (data: IVitalSignsData, fhir: FhirBundle) => void;
-  assistant?: boolean;
-  useFahrenheit?: boolean;
-  editable?: boolean;
-  border?: boolean;
-  assistantRoute?: string;
-}
+//interfaces
+import { IVitalSignsProps } from "./types/vital-signs";
+import { IVitalSignsData } from "./types/vital-signs";
+import { FhirBundle } from "./types/vital-signs";
 
 const VitalSigns = ({
   data,
@@ -56,111 +29,23 @@ const VitalSigns = ({
   border = true,
   assistantRoute = "",
 }: IVitalSignsProps) => {
-  // Use the custom hook for click outside functionality
   const componentRef = useClickOutside(() => {
     setClickedComponent("");
   });
   
-  const [bloodPressureValue, setBloodPressureValue] = useState({
-    systolic: data?.bloodPressure?.systolic || null,
-    diastolic: data?.bloodPressure?.diastolic || null,
-  });
-  const [heartRateValue, setHeartRateValue] = useState(data?.heartRate || null);
-  const [respiratoryRateValue, setRespiratoryRateValue] = useState(
-    data?.respiratoryRate || null,
-  );
-  const [temperatureValue, setTemperatureValue] = useState(
-    data?.temperature || null,
-  );
-  const [bloodOxygenValue, setBloodOxygenValue] = useState(
-    data?.bloodOxygen?.saturation || null,
-  );
-  const [fio2Value, setFio2Value] = useState(data?.bloodOxygen?.fiO2 || null);
-
   const [clickedComponent, setClickedComponent] = useState(null);
-  const [currentFhirBundle, setCurrentFhirBundle] = useState(null);
-
-  // Wrapper functions to handle type conversion
-  const handleHeartRateChange = useCallback((value: string | number) => {
-    const numValue = typeof value === "string" ? parseFloat(value) : value;
-    setHeartRateValue(isNaN(numValue) ? null : numValue);
-  }, []);
-
-  const handleRespiratoryRateChange = useCallback((value: string | number) => {
-    const numValue = typeof value === "string" ? parseFloat(value) : value;
-    setRespiratoryRateValue(isNaN(numValue) ? null : numValue);
-  }, []);
-
-  const handleTemperatureChange = useCallback((value: string | number) => {
-    const numValue = typeof value === "string" ? parseFloat(value) : value;
-    setTemperatureValue(isNaN(numValue) ? null : numValue);
-  }, []);
-
-  const handleBloodOxygenChange = useCallback((value: string | number) => {
-    const numValue = typeof value === "string" ? parseFloat(value) : value;
-    setBloodOxygenValue(isNaN(numValue) ? null : numValue);
-  }, []);
-
-  const handleFio2Change = useCallback((value: string | number) => {
-    const numValue = typeof value === "string" ? parseFloat(value) : value;
-    setFio2Value(isNaN(numValue) ? null : numValue);
-  }, []);
-
-  const handleBloodPressureChange = useCallback((value: { systolic: string | number | null; diastolic: string | number | null }) => {
-    const convertedValue = {
-      systolic: value.systolic ? (typeof value.systolic === "string" ? parseFloat(value.systolic) : value.systolic) : null,
-      diastolic: value.diastolic ? (typeof value.diastolic === "string" ? parseFloat(value.diastolic) : value.diastolic) : null,
-    };
-
-    if (convertedValue.systolic !== null && isNaN(convertedValue.systolic)) {
-      convertedValue.systolic = null;
-    }
-    if (convertedValue.diastolic !== null && isNaN(convertedValue.diastolic)) {
-      convertedValue.diastolic = null;
-    }
-
-    setBloodPressureValue(convertedValue);
-  }, []);
-
-  const handleFhirUpdate = useCallback((fhirBundle) => {
-    setCurrentFhirBundle(fhirBundle);
-  }, []);
   
+  const { values, handlers } = useVitalSigns(data);
+
   useEffect(() => {
     if (data) {
-      setBloodPressureValue({
-        systolic: data.bloodPressure?.systolic || null,
-        diastolic: data.bloodPressure?.diastolic || null,
-      });
-      setHeartRateValue(data.heartRate || null);
-      setRespiratoryRateValue(data.respiratoryRate || null);
-      setTemperatureValue(data.temperature || null);
-      setBloodOxygenValue(data.bloodOxygen?.saturation || null);
-      setFio2Value(data.bloodOxygen?.fiO2 || null);
+      handlers.updateFromData(data);
     }
-  }, [data]);
+  }, [data, handlers.updateFromData]);
 
-  const getCurrentVitalSignsData = useCallback(() => {
-    return {
-      bloodPressure: bloodPressureValue,
-      heartRate: heartRateValue,
-      respiratoryRate: respiratoryRateValue,
-      temperature: temperatureValue,
-      bloodOxygen: {
-        saturation: bloodOxygenValue,
-        fiO2: fio2Value,
-      },
-      timestamp: new Date().toISOString(),
-    };
-  }, [
-    bloodPressureValue,
-    heartRateValue,
-    respiratoryRateValue,
-    temperatureValue,
-    bloodOxygenValue,
-    fio2Value,
-   // currentFhirBundle,
-  ]);
+  const getCurrentVitalSignsData = useCallback((): IVitalSignsData => {
+    return values;
+  }, [values]);
 
   const {
     analysis,
@@ -172,20 +57,12 @@ const VitalSigns = ({
     clearAnalysis
   } = useAnalyzeVitalSigns({ route: assistantRoute, getCurrentVitalSignsData });
 
+  // Call onData when values change
   useEffect(() => {
     if (onData && typeof onData === "function") {
-      const vitalSignsData: IVitalSignsData = getCurrentVitalSignsData();
-      onData(vitalSignsData, currentFhirBundle);
+      onData(values, values.fhirBundle as FhirBundle);
     }
-  }, [
-    bloodPressureValue,
-    heartRateValue,
-    respiratoryRateValue,
-    temperatureValue,
-    bloodOxygenValue,
-    fio2Value,
-    currentFhirBundle,
-  ]);
+  }, [values, onData]);
 
   const closeAnalysis = () => {
     resetAnalysis();
@@ -194,60 +71,60 @@ const VitalSigns = ({
   return (
     <div ref={componentRef} className="relative animate-in fade-in-1 duration-200">
       <VitalSignsFhir
-        bloodPressureValue={bloodPressureValue}
-        heartRateValue={heartRateValue}
-        respiratoryRateValue={respiratoryRateValue}
-        temperatureValue={temperatureValue}
-        bloodOxygenValue={bloodOxygenValue}
-        fio2Value={fio2Value}
-        onFhirUpdate={handleFhirUpdate}
+        bloodPressureValue={values.bloodPressure}
+        heartRateValue={values.heartRate}
+        respiratoryRateValue={values.respiratoryRate}
+        temperatureValue={values.temperature}
+        bloodOxygenValue={values.bloodOxygen.saturation}
+        fio2Value={values.bloodOxygen.fiO2}
+        onFhirUpdate={handlers.handleFhirUpdate}
         useFahrenheit={useFahrenheit}
       />
 
       <Card
-        className={`p-1 px-0 transition-all duration-200 flex w-fit ${border ? "" : "border-none shadow-none"}`}
+        className={`p-0 px-0 transition-all duration-200 flex w-fit ${border ? "" : "border-none shadow-none"}`}
       >
         <CardContent
           className={
             minimizedVertical
-              ? "flex flex-col px-1 py-2"
+              ? "flex flex-col px-1 py-1"
               : "flex items-center px-1"
           }
         >
           <BloodPressure
-            bloodPressureValue={bloodPressureValue}
-            setBloodPressureValue={handleBloodPressureChange}
+            bloodPressureValue={values.bloodPressure}
+            setBloodPressureValue={handlers.handleBloodPressure}
             setClickedComponent={setClickedComponent}
             clickedComponent={clickedComponent}
             editable={editable}
           />
           <HeartRate
-            heartRateValue={heartRateValue}
-            setHeartRateValue={handleHeartRateChange}
+            heartRateValue={values.heartRate}
+            setHeartRateValue={handlers.handleHeartRate}
             setClickedComponent={setClickedComponent}
             clickedComponent={clickedComponent}
             editable={editable}
           />
           <RespiratoryRate
-            respiratoryRateValue={respiratoryRateValue}
-            setRespiratoryRateValue={handleRespiratoryRateChange}
+            respiratoryRateValue={values.respiratoryRate}
+            setRespiratoryRateValue={handlers.handleRespiratoryRate}
             setClickedComponent={setClickedComponent}
             clickedComponent={clickedComponent}
             editable={editable}
           />
           <Temperature
-            temperatureValue={temperatureValue}
-            setTemperatureValue={handleTemperatureChange}
+            temperatureValue={values.temperature}
+            setTemperatureValue={handlers.handleTemperature}
             setClickedComponent={setClickedComponent}
             clickedComponent={clickedComponent}
             useFahrenheit={useFahrenheit}
             editable={editable}
           />
           <BloodOxygen
-            bloodOxygenValue={bloodOxygenValue}
-            setBloodOxygenValue={handleBloodOxygenChange}
-            fio2Value={fio2Value}
-            setFio2Value={handleFio2Change}
+            bloodOxygenValue={values.bloodOxygen.saturation}
+            setBloodOxygenValue={handlers.handleBloodOxygen}
+            fio2Value={values.bloodOxygen.fiO2}
+            setFio2Value={handlers.handleFio2}
             setClickedComponent={setClickedComponent}
             clickedComponent={clickedComponent}
             editable={editable}
