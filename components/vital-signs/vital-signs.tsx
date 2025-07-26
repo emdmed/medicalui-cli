@@ -1,23 +1,24 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
 import { MessageCircleQuestionIcon, X } from "lucide-react";
+
 import BloodPressure from "@/components/vital-signs/signs/blood-pressure";
 import HeartRate from "@/components/vital-signs/signs/heart-rate";
 import RespiratoryRate from "@/components/vital-signs/signs/respiratory-rate";
 import Temperature from "@/components/vital-signs/signs/temperature";
 import BloodOxygen from "@/components/vital-signs/signs/blood-oxygen";
-import { Button } from "@/components/ui/button";
 import VitalSignsFhir from "@/components/vital-signs/components/vital-signs-fhir";
+
 import { useAnalyzeVitalSigns } from "@/components/vital-signs/hooks/useAnalyze";
 import { useClickOutside } from "./hooks/useClickOutside";
 import { useVitalSigns } from "./hooks/useVitalSigns";
 
-//interfaces
-import { IVitalSignsProps } from "./types/vital-signs";
-import { IVitalSignsData } from "./types/vital-signs";
-import { FhirBundle } from "./types/vital-signs";
+import { IVitalSignsProps, IVitalSignsData, FhirBundle } from "./types/vital-signs";
 
 const VitalSigns = ({
   data,
@@ -29,11 +30,12 @@ const VitalSigns = ({
   border = true,
   assistantRoute = "",
 }: IVitalSignsProps) => {
+  
+  const [clickedComponent, setClickedComponent] = useState(null);
+  
   const componentRef = useClickOutside(() => {
     setClickedComponent("");
   });
-  
-  const [clickedComponent, setClickedComponent] = useState(null);
   
   const { values, handlers } = useVitalSigns(data);
 
@@ -57,7 +59,6 @@ const VitalSigns = ({
     clearAnalysis
   } = useAnalyzeVitalSigns({ route: assistantRoute, getCurrentVitalSignsData });
 
-  // Call onData when values change
   useEffect(() => {
     if (onData && typeof onData === "function") {
       onData(values, values.fhirBundle as FhirBundle);

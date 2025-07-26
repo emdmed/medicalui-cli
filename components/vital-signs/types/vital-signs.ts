@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface VitalSignsFhirProps {
   bloodPressureValue?: BloodPressureValue;
   heartRateValue?: number | null;
@@ -119,4 +121,76 @@ export interface UseVitalSignsReturn {
     resetValues: () => void;
     updateFromData: (data: Partial<IVitalSignsData>) => void;
   };
+}
+
+
+export type BloodOxygenValue = number | null;
+export type Fio2Value = number | null;
+export type ClickedComponent = string | null | undefined;
+
+export interface Fio2Option {
+  value: string;
+  label: string;
+}
+
+export interface BloodOxygenProps {
+  bloodOxygenValue: BloodOxygenValue;
+  setBloodOxygenValue: (value: BloodOxygenValue) => void;
+  fio2Value: Fio2Value;
+  setFio2Value: (value: Fio2Value) => void;
+  setClickedComponent: (component: ClickedComponent) => void;
+  clickedComponent: ClickedComponent;
+  editable: boolean;
+}
+
+export type InputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => void;
+export type KeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => void;
+export type SelectChangeHandler = (value: string) => void;
+
+
+export interface BloodPressureProps {
+  bloodPressureValue: BloodPressureValue;
+  setBloodPressureValue: (value: BloodPressureValue) => void;
+  setClickedComponent: (component: string) => void;
+  clickedComponent: string;
+  editable: boolean;
+}
+
+export interface BloodPressureCategory {
+  category: "High" | "Low" | "Normal";
+}
+
+export interface TemperatureProps {
+  temperatureValue: string | number;
+  setTemperatureValue: (value: string | number) => void;
+  useFahrenheit?: boolean;
+  setClickedComponent: (component: string) => void;
+  clickedComponent: string;
+  editable: boolean;
+}
+
+export interface RespiratoryRateProps {
+  respiratoryRateValue: number;
+  setRespiratoryRateValue: (value: string | number) => void;
+  setClickedComponent: (component: string) => void;
+  clickedComponent: string;
+  editable: boolean;
+}
+
+export interface HeartRateProps {
+  heartRateValue: number;
+  setHeartRateValue: (value: number) => void;
+  setClickedComponent: (component: string) => void;
+  clickedComponent: string;
+  editable: boolean;
+}
+
+export interface EditSectionProps {
+  children: ReactNode;
+  clickedComponent: string | number | null;
+  parentComponent: string | number;
+  editable: boolean;
+  handleCancel: () => void;
+  handleDelete: () => void;
+  nextComponent?: () => void;
 }

@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
+
 import {
   validateRespiratoryRateInput,
   isValidRespiratoryRateInput,
@@ -11,13 +14,7 @@ import {
   RESPIRATORY_RATE_LIMITS,
 } from "@/components/vital-signs/validations/respiratory-rate-validations";
 
-interface RespiratoryRateProps {
-  respiratoryRateValue: number;
-  setRespiratoryRateValue: (value: string | number) => void;
-  setClickedComponent: (component: string) => void;
-  clickedComponent: string;
-  editable: boolean;
-}
+import { RespiratoryRateProps } from "../types/vital-signs";
 
 const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
   respiratoryRateValue,

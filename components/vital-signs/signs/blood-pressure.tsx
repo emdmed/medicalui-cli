@@ -1,23 +1,19 @@
 import { useEffect, useRef, useState } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
+
 import {
   validateBloodPressureInput,
   isValidBloodPressureInput,
   getBloodPressureCategory,
   parseBloodPressureValues,
-  type BloodPressureValue,
 } from "@/components/vital-signs/validations/blood-pressure-validations";
 
-interface BloodPressureProps {
-  bloodPressureValue: BloodPressureValue;
-  setBloodPressureValue: (value: BloodPressureValue) => void;
-  setClickedComponent: (component: string) => void;
-  clickedComponent: string;
-  editable: boolean;
-}
+import { BloodPressureProps } from "../types/vital-signs";
 
 const BloodPressure = ({
   bloodPressureValue,
@@ -37,7 +33,7 @@ const BloodPressure = ({
     if (isValidBloodPressureInput(value, "systolic")) {
       setBloodPressureValue({
         ...bloodPressureValue,
-        systolic: value,
+        systolic: parseInt(value),
       });
 
       if (validationError) {
@@ -52,7 +48,7 @@ const BloodPressure = ({
     if (isValidBloodPressureInput(value, "diastolic")) {
       setBloodPressureValue({
         ...bloodPressureValue,
-        diastolic: value,
+        diastolic: parseInt(value),
       });
 
       if (validationError) {
@@ -93,8 +89,8 @@ const BloodPressure = ({
 
   const handleDelete = () => {
     setBloodPressureValue({
-      systolic: "",
-      diastolic: "",
+      systolic: null,
+      diastolic: null,
     });
 
     if (systolicInputRef.current) {

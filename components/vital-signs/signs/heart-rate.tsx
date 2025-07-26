@@ -1,6 +1,8 @@
 import { useRef, useEffect, RefObject } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
 import {
@@ -10,13 +12,7 @@ import {
   HEART_RATE_LIMITS,
 } from "@/components/vital-signs/validations/heart-rate-validations";
 
-interface HeartRateProps {
-  heartRateValue: number;
-  setHeartRateValue: (value: number) => void;
-  setClickedComponent: (component: string) => void;
-  clickedComponent: string;
-  editable: boolean;
-}
+import { HeartRateProps } from "../types/vital-signs";
 
 const HeartRate = ({
   heartRateValue,

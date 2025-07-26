@@ -6,9 +6,8 @@ import {
   IBloodOxygen,
   FhirBundle,
   BloodPressureValue,
+  UseVitalSignsReturn
 } from "../types/vital-signs";
-
-import { UseVitalSignsReturn } from "../types/vital-signs";
 
 export const useVitalSigns = (
   initialData?: Partial<IVitalSignsData>,

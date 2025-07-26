@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,32 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
+
 import { BloodOxygenValidations } from "@/components/vital-signs/validations/blood-oxygen-validations";
 
-type BloodOxygenValue = number | null;
-type Fio2Value = number | null;
-type ClickedComponent = string | null | undefined;
+import { BloodOxygenProps, Fio2Option, SelectChangeHandler, InputChangeHandler, KeyDownHandler } from "../types/vital-signs";
 
-interface Fio2Option {
-  value: string;
-  label: string;
-}
-
-interface BloodOxygenProps {
-  bloodOxygenValue: BloodOxygenValue;
-  setBloodOxygenValue: (value: BloodOxygenValue) => void;
-  fio2Value: Fio2Value;
-  setFio2Value: (value: Fio2Value) => void;
-  setClickedComponent: (component: ClickedComponent) => void;
-  clickedComponent: ClickedComponent;
-  editable: boolean;
-}
-
-type InputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => void;
-type KeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => void;
-type SelectChangeHandler = (value: string) => void;
 
 const defaultFio2Value: number = BloodOxygenValidations.fio2.DEFAULT_VALUE;
 

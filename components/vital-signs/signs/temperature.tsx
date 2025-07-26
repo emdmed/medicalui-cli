@@ -1,22 +1,18 @@
 import { useRef, useEffect } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components//ui/button";
+
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
+
 import {
   validateTemperatureInput,
   getTemperatureStatus,
   getTemperatureLimits,
 } from "@/components/vital-signs/validations/temperature-validations";
 
-interface TemperatureProps {
-  temperatureValue: string | number;
-  setTemperatureValue: (value: string | number) => void;
-  useFahrenheit?: boolean;
-  setClickedComponent: (component: string) => void;
-  clickedComponent: string;
-  editable: boolean;
-}
+import { TemperatureProps } from "../types/vital-signs";
 
 const Temperature: React.FC<TemperatureProps> = ({
   temperatureValue,

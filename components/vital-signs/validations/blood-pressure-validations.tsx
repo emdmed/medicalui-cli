@@ -1,12 +1,4 @@
-
-export interface BloodPressureValue {
-  systolic: string | number;
-  diastolic: string | number;
-}
-
-export interface BloodPressureCategory {
-  category: "High" | "Low" | "Normal";
-}
+import { BloodPressureCategory, BloodPressureValue } from "../types/vital-signs";
 
 export const BLOOD_PRESSURE_LIMITS = {
   SYSTOLIC: {
@@ -55,7 +47,7 @@ export const isValidBloodPressureInput = (
   value: string, 
   type: 'systolic' | 'diastolic'
 ): boolean => {
-  if (value === "") return true;
+  if (value === "") return false;
   
   const numValue = parseInt(value, 10);
   if (!/^\d+$/.test(value)) return false;

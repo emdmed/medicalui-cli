@@ -1,16 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Check, Trash2 } from "lucide-react";
-import { ReactNode } from "react";
 
-interface EditSectionProps {
-  children: ReactNode;
-  clickedComponent: string | number | null;
-  parentComponent: string | number;
-  editable: boolean;
-  handleCancel: () => void;
-  handleDelete: () => void;
-  nextComponent?: () => void;
-}
+import { EditSectionProps } from "../types/vital-signs";
 
 const EditSection = ({
   children,
