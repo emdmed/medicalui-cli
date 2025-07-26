@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, memo } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,11 @@ import { useAnalyzeVitalSigns } from "@/components/vital-signs/hooks/useAnalyze"
 import { useClickOutside } from "./hooks/useClickOutside";
 import { useVitalSigns } from "./hooks/useVitalSigns";
 
-import { IVitalSignsProps, IVitalSignsData, FhirBundle } from "./types/vital-signs";
+import {
+  IVitalSignsProps,
+  IVitalSignsData,
+  FhirBundle,
+} from "./types/vital-signs";
 
 const VitalSigns = ({
   data,
@@ -30,13 +34,12 @@ const VitalSigns = ({
   border = true,
   assistantRoute = "",
 }: IVitalSignsProps) => {
-  
   const [clickedComponent, setClickedComponent] = useState(null);
-  
+
   const componentRef = useClickOutside(() => {
     setClickedComponent("");
   });
-  
+
   const { values, handlers } = useVitalSigns(data);
 
   useEffect(() => {
@@ -56,12 +59,15 @@ const VitalSigns = ({
     isLoading,
     resetAnalysis,
     showAnalysis,
-    clearAnalysis
+    clearAnalysis,
   } = useAnalyzeVitalSigns({ route: assistantRoute, getCurrentVitalSignsData });
 
   useEffect(() => {
     if (onData && typeof onData === "function") {
-      onData(values, values.fhirBundle as FhirBundle);
+      //quick fix until next refactor
+      const fhirBundle = values.fhirBundle;
+      delete values.fhirBundle;
+      onData(values, fhirBundle as FhirBundle);
     }
   }, [values, onData]);
 
@@ -70,7 +76,10 @@ const VitalSigns = ({
   };
 
   return (
-    <div ref={componentRef} className="relative animate-in fade-in-1 duration-200">
+    <div
+      ref={componentRef}
+      className="relative animate-in fade-in-1 duration-200"
+    >
       <VitalSignsFhir
         bloodPressureValue={values.bloodPressure}
         heartRateValue={values.heartRate}
@@ -176,7 +185,13 @@ const VitalSigns = ({
             <div className="flex items-center space-x-2">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 text-foreground"></div>
               <p className="text-xs">Analyzing...</p>
-              <Button onClick={()=> clearAnalysis()}  variant="ghost" size="icon"><X/></Button>
+              <Button
+                onClick={() => clearAnalysis()}
+                variant="ghost"
+                size="icon"
+              >
+                <X />
+              </Button>
             </div>
           </Card>
         </div>
@@ -185,4 +200,7 @@ const VitalSigns = ({
   );
 };
 
-export default VitalSigns;
+//TODO
+export default memo(VitalSigns, (prevProps, nextProps) => {
+  return JSON.stringify(prevProps.data) === JSON.stringify(nextProps.data);
+});

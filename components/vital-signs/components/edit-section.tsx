@@ -16,7 +16,7 @@ const EditSection = ({
   
   return (
     <div
-      className={`absolute bottom-10 rounded bg-none p-2 flex items-center gap-2 transition-all duration-200 ease-out ${
+      className={`absolute bottom-10 rounded bg-background p-2 flex items-center gap-2 transition-all duration-200 ease-out ${
         clickedComponent === parentComponent
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"

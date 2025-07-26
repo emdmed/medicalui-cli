@@ -9,15 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
 
 import { BloodOxygenValidations } from "@/components/vital-signs/validations/blood-oxygen-validations";
 
-import { BloodOxygenProps, Fio2Option, SelectChangeHandler, InputChangeHandler, KeyDownHandler } from "../types/vital-signs";
-
+import {
+  BloodOxygenProps,
+  Fio2Option,
+  SelectChangeHandler,
+  InputChangeHandler,
+  KeyDownHandler,
+} from "../types/vital-signs";
 
 const defaultFio2Value: number = BloodOxygenValidations.fio2.DEFAULT_VALUE;
 
@@ -42,13 +46,17 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
   setFio2Value,
   setClickedComponent,
   clickedComponent,
-  editable
+  editable,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const selectRef = useRef<HTMLButtonElement>(null);
 
-  const currentFio2Value = fio2Value ? fio2Value.toString() : defaultFio2Value.toString();
-  const isLow: boolean = bloodOxygenValue !== null && BloodOxygenValidations.spo2.isLow(bloodOxygenValue);
+  const currentFio2Value = fio2Value
+    ? fio2Value.toString()
+    : defaultFio2Value.toString();
+  const isLow: boolean =
+    bloodOxygenValue !== null &&
+    BloodOxygenValidations.spo2.isLow(bloodOxygenValue);
 
   useEffect(() => {
     if (clickedComponent === "bloodOxygen" && inputRef.current) {
@@ -72,17 +80,24 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
     setFio2Value(parseInt(value));
   };
 
-  const handleKeyDown: KeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+  const handleKeyDown: KeyDownHandler = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ): void => {
     const bloodOxygenInputValue: string = e.currentTarget.value;
 
-    if (e.key === "Enter" && BloodOxygenValidations.spo2.isValid(bloodOxygenInputValue)) {
+    if (
+      e.key === "Enter" &&
+      BloodOxygenValidations.spo2.isValid(bloodOxygenInputValue)
+    ) {
       setClickedComponent(""); // or next component
     } else if (e.key === "Escape") {
       handleCancel();
     }
   };
 
-  const handleInputChange: InputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleInputChange: InputChangeHandler = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
     const value: string = e.target.value;
 
     if (BloodOxygenValidations.spo2.isValid(value)) {
@@ -138,27 +153,26 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
           </EditSection>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center">
-            {bloodOxygenValue !== null ? (
-              <span className="flex items-baseline gap-2  hover:text-accent-foreground transition-all">
-                {bloodOxygenValue}{" "}
-                <small className="flex items-baseline gap-2">
-                  <small className="opacity-50">%</small>
-                  <Badge
-                    className="ms-1"
-                    variant={BloodOxygenValidations.fio2.isSupplemental(fio2Value as number) ? "destructive" : "secondary"}
-                  >
-                    {fio2Value}%
-                  </Badge>
+        <div className="flex gap-2">
+          {bloodOxygenValue !== null ? (
+            <div className="flex items-baseline gap-2  hover:text-accent-foreground transition-all">
+              <span>{bloodOxygenValue}</span>
+                <small className="opacity-50">%</small>
+                <small
+                  className={`ms-1 ${ BloodOxygenValidations.fio2.isSupplemental(
+                    fio2Value as number,
+                  )
+                    ? "text-destructive"
+                    : ""}`}
+                >
+                  {fio2Value}%
                 </small>
-              </span>
-            ) : (
-              <Button size="sm" variant="ghost" className="text-xs">
-                O2 Saturation
-              </Button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <Button size="sm" variant="ghost" className="text-xs">
+              O2 Saturation
+            </Button>
+          )}
         </div>
       </div>
 
