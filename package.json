@@ -1,6 +1,6 @@
 {
   "name": "medical-ui-cli",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A CLI tool for medical UI components",
   "main": "index.js",
   "bin": {
