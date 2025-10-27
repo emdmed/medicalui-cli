@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-
 const { program } = require("commander");
 const fs = require("fs");
 const fsPromises = fs.promises;
@@ -14,6 +13,7 @@ const shadcnComponents = `npx shadcn add card button input select badge label te
 
 const dependencies = {
   "vital-signs": "",
+  "acid-base": "",
 };
 
 const componentsJsonFilePath = path.join(process.cwd(), "components.json");
@@ -69,63 +69,6 @@ const copyComponent = async (destinationDir, componentName) => {
     throw new Error(
       `Error copying component ${componentName}: ${error.message}`,
     );
-  }
-};
-
-const copyVitalSignsStructure = async (destinationBaseDir) => {
-  const vitalSignsSourcePath = path.join(
-    __dirname,
-    "components",
-    "vital-signs",
-  );
-  const vitalSignsDestPath = path.join(destinationBaseDir, "vital-signs");
-
-  console.log("Debug: Looking for vital signs at:", vitalSignsSourcePath);
-  console.log("Debug: __dirname is:", __dirname);
-  console.log("Debug: Destination will be:", vitalSignsDestPath);
-
-  // Check if the vital-signs directory exists
-  if (!fs.existsSync(vitalSignsSourcePath)) {
-    console.error(
-      `Vital signs directory not found at: ${vitalSignsSourcePath}`,
-    );
-
-    // Try to find the actual structure
-    const alternativePath = path.join(__dirname, "components");
-    console.log(
-      "Debug: Checking if components directory exists:",
-      fs.existsSync(alternativePath),
-    );
-
-    if (fs.existsSync(alternativePath)) {
-      const items = await fsPromises.readdir(alternativePath);
-      console.log("Debug: Items in components directory:", items);
-    }
-
-    throw new Error(
-      `Vital signs directory not found at: ${vitalSignsSourcePath}`,
-    );
-  }
-
-  try {
-    // Copy the entire vital-signs folder structure
-    await copyDirectoryRecursive(vitalSignsSourcePath, vitalSignsDestPath);
-    console.log("Vital signs structure copied successfully");
-
-    // Also copy the main vital-signs.tsx file if it exists
-    const mainVitalSignsFile = path.join(
-      __dirname,
-      "components",
-      "vital-signs.tsx",
-    );
-    if (fs.existsSync(mainVitalSignsFile)) {
-      await copyFile(
-        mainVitalSignsFile,
-        path.join(destinationBaseDir, "vital-signs.tsx"),
-      );
-    }
-  } catch (error) {
-    throw new Error(`Error copying vital signs structure: ${error.message}`);
   }
 };
 
@@ -204,16 +147,25 @@ program
     console.log("Debug: Component route:", componentRoute);
 
     try {
-      if (str === "vital-signs") {
-        // Copy the entire vital signs structure
-        await copyVitalSignsStructure(componentRoute);
-        await installDependencies(str);
-      } else {
-        // Copy single component
+      // Check if component is a folder or a file
+      const componentFolderPath = path.join(packageComponentsPath, str);
+      const componentFilePath = path.join(packageComponentsPath, `${str}.tsx`);
+
+      if (fs.existsSync(componentFolderPath) && fs.statSync(componentFolderPath).isDirectory()) {
+        // Component is a folder - copy entire directory structure
+        console.log(`Copying folder component: ${str}`);
+        const destinationPath = path.join(componentRoute, str);
+        await copyDirectoryRecursive(componentFolderPath, destinationPath);
+        console.log(`Folder component ${str} successfully copied to ${destinationPath}`);
+      } else if (fs.existsSync(componentFilePath)) {
+        // Component is a single file - copy the file
+        console.log(`Copying file component: ${str}`);
         await copyComponent(componentRoute, str);
-        await installDependencies(str);
+      } else {
+        throw new Error(`Component "${str}" not found as either a folder or file in ${packageComponentsPath}`);
       }
 
+      await installDependencies(str);
       console.log(`Successfully added ${str}!`);
       process.exit(0);
     } catch (error) {
@@ -222,29 +174,30 @@ program
     }
   });
 
-// New command to list available vital signs components
-program.command("list-vital-signs").action(async () => {
-  const vitalSignsPath = path.join(__dirname, "components", "vital-signs");
+// Command to list all available components
+program.command("list").action(async () => {
+  const componentsPath = path.join(__dirname, "components");
 
   try {
-    if (fs.existsSync(vitalSignsPath)) {
-      const items = await fsPromises.readdir(vitalSignsPath, {
+    if (fs.existsSync(componentsPath)) {
+      const items = await fsPromises.readdir(componentsPath, {
         withFileTypes: true,
       });
-      console.log("Available vital signs components:");
+      console.log("Available components:");
 
       items.forEach((item) => {
         if (item.isDirectory()) {
-          console.log(`  📁 ${item.name}/`);
+          console.log(`  📁 ${item.name}/ (folder component)`);
         } else if (item.name.endsWith(".tsx") || item.name.endsWith(".ts")) {
-          console.log(`  📄 ${item.name}`);
+          const componentName = item.name.replace(/\.(tsx|ts)$/, "");
+          console.log(`  📄 ${componentName} (file component)`);
         }
       });
     } else {
-      console.log("No vital signs components found");
+      console.log("No components found");
     }
   } catch (error) {
-    console.error("Error listing vital signs components:", error);
+    console.error("Error listing components:", error);
   }
 });
 
@@ -263,16 +216,28 @@ program.command("debug").action(async () => {
   console.log("Components directory exists:", fs.existsSync(componentsDir));
 
   if (fs.existsSync(componentsDir)) {
-    const items = await fsPromises.readdir(componentsDir);
-    console.log("Items in components directory:", items);
+    const items = await fsPromises.readdir(componentsDir, {
+      withFileTypes: true,
+    });
+    console.log("Items in components directory:");
+    items.forEach((item) => {
+      const type = item.isDirectory() ? "DIR" : "FILE";
+      console.log(`  [${type}] ${item.name}`);
+    });
 
-    // Check for vital-signs specifically
-    const vitalSignsPath = path.join(componentsDir, "vital-signs");
-    console.log("Vital signs directory exists:", fs.existsSync(vitalSignsPath));
+    // Check for specific folder components
+    const folderComponents = ["vital-signs", "acid-base"];
+    for (const folderName of folderComponents) {
+      const folderPath = path.join(componentsDir, folderName);
+      console.log(
+        `\n${folderName} directory exists:`,
+        fs.existsSync(folderPath),
+      );
 
-    if (fs.existsSync(vitalSignsPath)) {
-      const vitalSignsItems = await fsPromises.readdir(vitalSignsPath);
-      console.log("Items in vital-signs directory:", vitalSignsItems);
+      if (fs.existsSync(folderPath)) {
+        const folderItems = await fsPromises.readdir(folderPath);
+        console.log(`Items in ${folderName} directory:`, folderItems);
+      }
     }
   }
 
