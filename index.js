@@ -11,9 +11,13 @@ const execPromise = util.promisify(exec);
 
 const shadcnComponents = `npx shadcn add card button input select badge label textarea`;
 
+// Additional npm dependencies needed for specific components
+// Shadcn components (card, button, input, etc.) are installed automatically for all components
 const dependencies = {
-  "vital-signs": "",
-  "acid-base": "",
+  "vital-signs": "", // No additional dependencies needed
+  "acid-base": "", // No additional dependencies needed
+  // Add more components here with their specific npm dependencies if needed
+  // Example: "chart-component": "recharts d3"
 };
 
 const componentsJsonFilePath = path.join(process.cwd(), "components.json");
@@ -101,14 +105,24 @@ const checkRequirements = async () => {
 };
 
 const installDependencies = async (componentName) => {
-  const deps = dependencies[componentName];
-  if (deps) {
-    console.log(`Installing dependencies for ${componentName}...`);
-    const installCmd = `npm i ${deps}`;
-    console.log("installCmd", installCmd);
+  try {
+    // Always install shadcn components first
+    console.log("Installing required shadcn components...");
+    const { stdout: shadcnStdout, stderr: shadcnStderr } = await execPromise(
+      shadcnComponents,
+      { cwd: process.cwd() }
+    );
+    console.log("Shadcn components installed successfully!");
+    if (shadcnStdout) console.log(shadcnStdout);
+    if (shadcnStderr) console.error(shadcnStderr);
 
-    try {
-      await execPromise(shadcnComponents, { cwd: process.cwd() });
+    // Then install component-specific dependencies if they exist
+    const deps = dependencies[componentName];
+    if (deps && deps.trim() !== "") {
+      console.log(`Installing additional dependencies for ${componentName}...`);
+      const installCmd = `npm i ${deps}`;
+      console.log("installCmd", installCmd);
+
       const { stdout, stderr } = await execPromise(installCmd, {
         cwd: process.cwd(),
       });
@@ -117,15 +131,15 @@ const installDependencies = async (componentName) => {
       if (stderr) {
         console.error(stderr);
       }
-    } catch (error) {
-      console.error(
-        `Error installing dependencies for ${componentName}:`,
-        error,
-      );
-      throw error;
+    } else {
+      console.log(`No additional dependencies for ${componentName}`);
     }
-  } else {
-    console.log(`No dependencies specified for ${componentName}`);
+  } catch (error) {
+    console.error(
+      `Error installing dependencies for ${componentName}:`,
+      error
+    );
+    throw error;
   }
 };
 
