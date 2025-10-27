@@ -1,19 +1,27 @@
 {
   "name": "medical-ui-cli",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "A CLI tool for medical UI components",
   "main": "index.js",
   "bin": {
     "medical-ui": "./index.js"
   },
+  "files": [
+    "index.js",
+    "components",
+    "css"
+  ],
   "scripts": {
     "start": "node index",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "chmod +x index.js"
   },
   "keywords": [
     "medical",
     "ui",
-    "cli"
+    "cli",
+    "components",
+    "shadcn"
   ],
   "author": "a1gokn8t",
   "license": "ISC",
