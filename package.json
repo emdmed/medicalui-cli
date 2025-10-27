@@ -1,6 +1,6 @@
 {
   "name": "medical-ui-cli",
-  "version": "0.2.4",
+  "version": "0.2.3",
   "description": "A CLI tool for medical UI components",
   "main": "index.js",
   "bin": {
@@ -10,7 +10,11 @@
     "start": "node index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["medical", "ui", "cli"],
+  "keywords": [
+    "medical",
+    "ui",
+    "cli"
+  ],
   "author": "a1gokn8t",
   "license": "ISC",
   "dependencies": {
