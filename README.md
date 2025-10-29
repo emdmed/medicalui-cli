@@ -4,7 +4,7 @@ A comprehensive React component for capturing and displaying medical vital signs
 
 ## Installation
 ```bash
-medical-ui add vital-signs
+npx medical-ui add vital-signs
 ```
 
 ## Requirements
