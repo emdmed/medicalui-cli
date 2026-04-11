@@ -9,15 +9,20 @@ const util = require("util");
 
 const execPromise = util.promisify(exec);
 
-const shadcnComponents = `npx shadcn add card button input select badge label textarea`;
+const shadcnComponents = `npx shadcn add card button input select badge label textarea separator tabs checkbox`;
 
 // Additional npm dependencies needed for specific components
 // Shadcn components (card, button, input, etc.) are installed automatically for all components
 const dependencies = {
-  "vital-signs": "", // No additional dependencies needed
-  "acid-base": "", // No additional dependencies needed
-  // Add more components here with their specific npm dependencies if needed
-  // Example: "chart-component": "recharts d3"
+  "vital-signs": "",
+  "acid-base": "",
+  "bmi": "",
+  "cardiology": "",
+  "clinical-notes": "",
+  "dka": "",
+  "pafi": "",
+  "sepsis": "",
+  "water-balance": "",
 };
 
 const componentsJsonFilePath = path.join(process.cwd(), "components.json");
@@ -240,7 +245,7 @@ program.command("debug").action(async () => {
     });
 
     // Check for specific folder components
-    const folderComponents = ["vital-signs", "acid-base"];
+    const folderComponents = ["vital-signs", "acid-base", "bmi", "cardiology", "clinical-notes", "dka", "pafi", "sepsis", "water-balance"];
     for (const folderName of folderComponents) {
       const folderPath = path.join(componentsDir, folderName);
       console.log(

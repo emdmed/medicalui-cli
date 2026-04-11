@@ -13,6 +13,21 @@ export const analyze = ({ values, isChronic }) => {
     return null;
   }
 
+  // ---- Henderson-Hasselbalch internal coherence check ----
+  // pH = 6.1 + log10(HCO3 / (0.03 * pCO2))
+  // Flags inconsistent inputs — analysis still proceeds but results should be treated with caution
+  const expectedPH = 6.1 + Math.log10(HCO3 / (0.03 * pCO2));
+  const hhDeviation = Math.abs(pH - expectedPH);
+  const hhConsistency = {
+    expectedPH: expectedPH.toFixed(2),
+    measured: pH.toFixed(2),
+    deviation: hhDeviation.toFixed(2),
+    isCoherent: hhDeviation <= 0.08,
+    warning: hhDeviation > 0.08
+      ? `Measured pH (${pH.toFixed(2)}) differs from Henderson-Hasselbalch expected (${expectedPH.toFixed(2)}) by ${hhDeviation.toFixed(2)} — verify lab values`
+      : null,
+  };
+
   const expectedValues: ExpectedValues = {};
   let primaryDisorder = "Normal";
   let compensatoryResponse = "";
@@ -144,17 +159,18 @@ export const analyze = ({ values, isChronic }) => {
       compensation = "Compensated";
     }
   } else if (primaryDisorder === "Metabolic Alkalosis") {
-    // Expected pCO2 = 0.7 × ΔHCO3 + 40 ± 2
-    const expectedPCO2 = 0.7 * (HCO3 - 24) + 40;
-    expectedValues.low = (expectedPCO2 - 2).toFixed(1);
-    expectedValues.high = (expectedPCO2 + 2).toFixed(1);
-    
+    // Expected pCO2 = 0.7 × ΔHCO3 + 40 ± 5, capped at 55 mmHg physiological ceiling
+    const rawExpectedPCO2 = 0.7 * (HCO3 - 24) + 40;
+    const expectedPCO2 = Math.min(rawExpectedPCO2, 55);
+    expectedValues.low = (expectedPCO2 - 5).toFixed(1);
+    expectedValues.high = Math.min(expectedPCO2 + 5, 55).toFixed(1);
+
     compensatoryResponse = "Respiratory Acidosis";
-    
-    if (pCO2 > expectedPCO2 + 2) {
+
+    if (pCO2 > expectedPCO2 + 5) {
       compensation = "Overcompensated";
       additionalDisorders.push("Respiratory Acidosis");
-    } else if (pCO2 < expectedPCO2 - 2) {
+    } else if (pCO2 < expectedPCO2 - 5) {
       if (pCO2 < pCO2_LOW) {
         compensation = "Inadequate compensation";
         additionalDisorders.push("Respiratory Alkalosis");
@@ -175,11 +191,11 @@ export const analyze = ({ values, isChronic }) => {
       
       if (HCO3 > expectedHCO3 + 3) {
         compensation = "Overcompensated";
-        additionalDisorders.push("+ Metabolic Alkalosis");
+        additionalDisorders.push("Metabolic Alkalosis");
       } else if (HCO3 < expectedHCO3 - 3) {
         if (HCO3 < HCO3_LOW) {
           compensation = "Inadequate compensation";
-          additionalDisorders.push("+ Metabolic Acidosis");
+          additionalDisorders.push("Metabolic Acidosis");
         } else {
           compensation = "Inadequate compensation";
         }
@@ -196,11 +212,11 @@ export const analyze = ({ values, isChronic }) => {
       
       if (HCO3 > expectedHCO3 + 3) {
         compensation = "Overcompensated";
-        additionalDisorders.push("+ Metabolic Alkalosis");
+        additionalDisorders.push("Metabolic Alkalosis");
       } else if (HCO3 < expectedHCO3 - 3) {
         if (HCO3 < HCO3_LOW) {
           compensation = "Inadequate compensation";
-          additionalDisorders.push("+ Metabolic Acidosis");
+          additionalDisorders.push("Metabolic Acidosis");
         } else {
           compensation = "Inadequate compensation";
         }
@@ -219,11 +235,11 @@ export const analyze = ({ values, isChronic }) => {
       
       if (HCO3 < expectedHCO3 - 2) {
         compensation = "Overcompensated";
-        additionalDisorders.push("+ Metabolic Acidosis");
+        additionalDisorders.push("Metabolic Acidosis");
       } else if (HCO3 > expectedHCO3 + 2) {
         if (HCO3 > HCO3_HIGH) {
           compensation = "Inadequate compensation";
-          additionalDisorders.push("+ Metabolic Alkalosis");
+          additionalDisorders.push("Metabolic Alkalosis");
         } else {
           compensation = "Inadequate compensation";
         }
@@ -258,15 +274,6 @@ export const analyze = ({ values, isChronic }) => {
   if (isNormalPH && compensation === "Compensated") {
     compensation = "Compensated";
   }
-
-  // Build allDisorders array
-  if (primaryDisorder !== "Normal") {
-    allDisorders.push(primaryDisorder);
-  }
-  if (compensatoryResponse) {
-    allDisorders.push(compensatoryResponse);
-  }
-  allDisorders.push(...additionalDisorders);
 
   // ---- Anion gap calculation ----
   let anionGap: number | null = null;
@@ -316,6 +323,15 @@ export const analyze = ({ values, isChronic }) => {
     }
   }
 
+  // Build allDisorders array (after delta-ratio so those disorders are included)
+  if (primaryDisorder !== "Normal") {
+    allDisorders.push(primaryDisorder);
+  }
+  if (compensatoryResponse) {
+    allDisorders.push(compensatoryResponse);
+  }
+  allDisorders.push(...additionalDisorders);
+
   // Build comprehensive interpretation
   let interpretation = "";
   if (primaryDisorder !== "Normal" && primaryDisorder !== "Mixed Disorder") {
@@ -356,6 +372,7 @@ export const analyze = ({ values, isChronic }) => {
     deltaRatio: deltaRatio !== null ? deltaRatio.toFixed(2) : null,
     deltaRatioInterpretation,
     allDisorders,
+    hhConsistency,
     debug: {
       Na,
       Cl,

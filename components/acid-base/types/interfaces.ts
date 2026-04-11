@@ -20,5 +20,12 @@ export interface Result {
   anionGap: string | null;
   agStatus: string | null;
   allDisorders: string[];
-  compensatoryResponse: string
+  compensatoryResponse: string;
+  hhConsistency?: {
+    expectedPH: string;
+    measured: string;
+    deviation: string;
+    isCoherent: boolean;
+    warning: string | null;
+  };
 }

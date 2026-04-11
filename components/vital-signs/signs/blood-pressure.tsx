@@ -127,6 +127,7 @@ const BloodPressure = ({
       className={`px-2 cursor-pointer relative`}
       onClick={onClick}
       role="button"
+      aria-label="Edit blood pressure"
     >
       <div className="flex items-center" id="bloodPressure">
         <EditSection
@@ -143,8 +144,9 @@ const BloodPressure = ({
             onChange={onSystolicChange}
             onKeyDown={handleKeyDown}
             placeholder="120"
-            className="w-[50px] text-center"
+            className="w-[60px] text-center"
             maxLength={3}
+            aria-label="Systolic blood pressure"
           />
           <span className="text-muted-foreground">/</span>
           <Input
@@ -153,13 +155,14 @@ const BloodPressure = ({
             onChange={onDiastolicChange}
             onKeyDown={handleKeyDown}
             placeholder="80"
-            className="w-[50px] text-center"
+            className="w-[60px] text-center"
             maxLength={3}
+            aria-label="Diastolic blood pressure"
           />
         </EditSection>
-
         {bloodPressureValue?.systolic && bloodPressureValue?.diastolic ? (
-          <span className="flex items-baseline gap-2 hover:text-accent-foreground transition-all">
+          <span className={`flex items-baseline gap-2 hover:text-accent-foreground transition-all ${currentBPCategory ? "text-destructive" : ""}
+`}>
             {bloodPressureValue.systolic}/{bloodPressureValue.diastolic}{" "}
             <small className="opacity-50">mmHg</small>
           </span>

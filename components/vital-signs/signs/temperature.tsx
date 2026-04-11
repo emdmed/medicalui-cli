@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components//ui/button";
+import { Button } from "@/components/ui/button";
 
 import VitalSignsAlert from "@/components/vital-signs/components/vital-signs-alert";
 import EditSection from "@/components/vital-signs/components/edit-section";
@@ -34,7 +34,7 @@ const Temperature: React.FC<TemperatureProps> = ({
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-    setTemperatureValue("");
+    setTemperatureValue(null);
   };
 
   const handleCancel = (): void => {
@@ -44,7 +44,7 @@ const Temperature: React.FC<TemperatureProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter" && validateTemperatureInput(e.currentTarget.value, useFahrenheit)) {
       handleCancel();
-          setClickedComponent("bloodOxygen");
+      setClickedComponent("bloodOxygen");
     } else if (e.key === "Escape") {
       handleCancel();
     }
@@ -52,7 +52,7 @@ const Temperature: React.FC<TemperatureProps> = ({
 
   const handleEditClick = (): void => {
     setClickedComponent("temperature");
-    
+
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
@@ -69,7 +69,7 @@ const Temperature: React.FC<TemperatureProps> = ({
   const limits = getTemperatureLimits(useFahrenheit);
 
   return (
-    <div className="px-2 cursor-pointer relative">
+    <div className="px-2 cursor-pointer relative" role="button" aria-label="Edit temperature">
       <div className="flex items-center" onClick={handleEditClick}>
         <EditSection
           clickedComponent={clickedComponent}
@@ -82,7 +82,7 @@ const Temperature: React.FC<TemperatureProps> = ({
           <div className="flex items-center gap-2">
             <Input
               ref={inputRef}
-              className="w-[70px] text-center"
+              className="w-[85px] text-center"
               defaultValue={temperatureValue?.toString() || ""}
               onChange={onChange}
               onKeyDown={handleKeyDown}
@@ -90,13 +90,15 @@ const Temperature: React.FC<TemperatureProps> = ({
               max={limits.INPUT_MAX.toString()}
               step="0.1"
               type="number"
+              placeholder={useFahrenheit ? "98.6" : "36"}
+              aria-label={`Temperature in degrees ${useFahrenheit ? "Fahrenheit" : "Celsius"}`}
             />
           </div>
         </EditSection>
 
         <div>
           {temperatureValue ? (
-            <span className="flex items-baseline gap-2  hover:text-accent-foreground transition-all">
+            <span className={`flex items-baseline gap-2  hover:text-accent-foreground transition-all ${temperatureStatus ? "text-destructive" : ""}`}>
               {temperatureValue}{" "}
               <small className="opacity-50">
                 {useFahrenheit ? "°F" : "°C"}

@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { TriangleAlert } from "lucide-react";
 
 interface VitalSignsAlertProps {
@@ -6,6 +7,11 @@ interface VitalSignsAlertProps {
 }
 
 const VitalSignsAlert = ({ text }: VitalSignsAlertProps) => {
+
+  const isMobile = useIsMobile()
+
+  if (isMobile) return null
+
   return (
     <div
       style={{ position: "absolute", bottom: -22, left: 0 }}

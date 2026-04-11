@@ -16,7 +16,7 @@ export const validateHeartRateInput = (value: string): boolean => {
   return !isNaN(num) && num >= HEART_RATE_LIMITS.MIN && num <= HEART_RATE_LIMITS.MAX;
 };
 
-export const getHeartRateCategory = (heartRate: number): HeartRateCategory | null => {
+export const getHeartRateCategory = (heartRate: number | null): HeartRateCategory | null => {
   if (!heartRate) return null;
   
   if (heartRate > HEART_RATE_LIMITS.CATEGORIES.ELEVATED) {
@@ -30,7 +30,7 @@ export const getHeartRateCategory = (heartRate: number): HeartRateCategory | nul
   return { category: "Normal" };
 };
 
-export const parseHeartRateValue = (value: string): number => {
+export const parseHeartRateValue = (value: string): number | null => {
   const parsed = parseInt(value);
-  return isNaN(parsed) ? 0 : parsed;
+  return isNaN(parsed) ? null : parsed;
 };

@@ -1,3 +1,17 @@
+/**
+ * Type definitions for the VitalSigns component system.
+ *
+ * Key types for consumers:
+ *   IVitalSignsProps  — Props for the main <VitalSigns> component
+ *   IVitalSignsData   — Shape of vital signs data (passed via `data` prop and returned in `onData`)
+ *   FhirBundle        — FHIR R4 Bundle returned alongside data in `onData` callback
+ *
+ * Internal types (used by sub-components):
+ *   BloodPressureProps, HeartRateProps, RespiratoryRateProps,
+ *   TemperatureProps, BloodOxygenProps — individual sign component props
+ *   EditSectionProps — reusable edit overlay component props
+ *   UseVitalSignsReturn — return type from useVitalSigns hook
+ */
 import { ReactNode } from "react";
 
 export interface VitalSignsFhirProps {
@@ -161,8 +175,8 @@ export interface BloodPressureCategory {
 }
 
 export interface TemperatureProps {
-  temperatureValue: string | number;
-  setTemperatureValue: (value: string | number) => void;
+  temperatureValue: string | number | null;
+  setTemperatureValue: (value: string | number | null) => void;
   useFahrenheit?: boolean;
   setClickedComponent: (component: string) => void;
   clickedComponent: string;
@@ -170,16 +184,16 @@ export interface TemperatureProps {
 }
 
 export interface RespiratoryRateProps {
-  respiratoryRateValue: number;
-  setRespiratoryRateValue: (value: string | number) => void;
+  respiratoryRateValue: string | number | null;
+  setRespiratoryRateValue: (value: string | number | null) => void;
   setClickedComponent: (component: string) => void;
   clickedComponent: string;
   editable: boolean;
 }
 
 export interface HeartRateProps {
-  heartRateValue: number;
-  setHeartRateValue: (value: number) => void;
+  heartRateValue: number | null;
+  setHeartRateValue: (value: number | null) => void;
   setClickedComponent: (component: string) => void;
   clickedComponent: string;
   editable: boolean;

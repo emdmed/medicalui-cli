@@ -32,7 +32,7 @@ export const isValidRespiratoryRateInput = (value: string): boolean => {
   return numValue <= RESPIRATORY_RATE_LIMITS.MAX;
 };
 
-export const getRespiratoryRateCategory = (respiratoryRate: string | number): RespiratoryRateValidation | null => {
+export const getRespiratoryRateCategory = (respiratoryRate: string | number | null): RespiratoryRateValidation | null => {
   const rate = typeof respiratoryRate === 'string' ? parseInt(respiratoryRate) : respiratoryRate;
   
   if (!rate || isNaN(rate)) return null;
@@ -48,7 +48,7 @@ export const getRespiratoryRateCategory = (respiratoryRate: string | number): Re
   return { category: "Normal" };
 };
 
-export const parseRespiratoryRateValue = (value: string | number): number => {
+export const parseRespiratoryRateValue = (value: string | number | null): number | null => {
   const parsed = parseInt(value?.toString() || "");
-  return isNaN(parsed) ? 0 : parsed;
+  return isNaN(parsed) ? null : parsed;
 };

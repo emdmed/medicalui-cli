@@ -33,6 +33,7 @@ const EditSection = ({
             if(nextComponent) nextComponent()
           }}
           className="h-1/2"
+          aria-label="Confirm value"
         >
           <Check />
         </Button>
@@ -44,6 +45,7 @@ const EditSection = ({
             handleDelete();
           }}
           className="h-1/2"
+          aria-label="Delete value"
         >
           <Trash2 />
         </Button>

@@ -1,8 +1,7 @@
-# Vital Signs Component
+# Medical UI
 
-A comprehensive React component for capturing and displaying medical vital signs with built-in validation, FHIR R4 compliance, and AI analysis integration.
+Open-source clinical UI components for React. Like shadcn/ui, but for medical interfaces.
 
-## Installation
 ```bash
 npx medical-ui add vital-signs
 ```
@@ -15,94 +14,63 @@ npx medical-ui add vital-signs
 - shadcn/ui
 - Lucide React
 
-## Quick Start
-```jsx
-import VitalSigns from "@/components/vital-signs";
+## Components
 
-export default function PatientChart() {
-  const handleVitalSignsChange = (data, fhirBundle) => {
-    console.log("Vital Signs:", data);
-    console.log("FHIR Bundle:", fhirBundle);
-  };
-  
+### Monitoring
+
+| Component | Install | Description |
+|-----------|---------|-------------|
+| **vital-signs** | `npx medical-ui add vital-signs` | BP, HR, RR, Temp, SpO2/FiO2 with validation and FHIR R4 export |
+| **sepsis** | `npx medical-ui add sepsis` | Sepsis-3/SOFA monitoring, qSOFA screening, hour-1 bundle tracker |
+| **dka** | `npx medical-ui add dka` | DKA monitoring: glucose, ketones, K+, GCS, ABG integration |
+
+### Calculators
+
+| Component | Install | Description |
+|-----------|---------|-------------|
+| **acid-base** | `npx medical-ui add acid-base` | ABG analyzer — disorder detection, compensation, anion gap |
+| **bmi** | `npx medical-ui add bmi` | BMI calculator with imperial/metric toggle |
+| **water-balance** | `npx medical-ui add water-balance` | Fluid intake/output tracker with insensible loss calculation |
+| **pafi** | `npx medical-ui add pafi` | PaO2/FiO2 ratio with ARDS classification |
+| **cardiology** | `npx medical-ui add cardiology` | ASCVD risk, HEART Score, CHA₂DS₂-VASc calculators |
+
+### Documentation
+
+| Component | Install | Description |
+|-----------|---------|-------------|
+| **clinical-notes** | `npx medical-ui add clinical-notes` | Encounter note editor with clinical highlighting and local storage |
+
+## Commands
+
+```bash
+npx medical-ui add <component>    # Install a component
+npx medical-ui list               # List all available components
+npx medical-ui debug              # Show debug information
+```
+
+## Quick Start
+
+```tsx
+import VitalSigns from "@/components/vital-signs/vital-signs";
+
+export default function PatientDashboard() {
   return (
-    
+    <VitalSigns
+      editable
+      useFahrenheit={false}
+      onData={(data, fhir) => console.log(data, fhir)}
+    />
   );
 }
 ```
 
-## Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `data` | `IVitalSignsData` | `undefined` | Initial vital signs data |
-| `onData` | `Function` | `undefined` | Callback when vital signs change |
-| `assistant` | `boolean` | `true` | Show AI analysis button |
-| `useFahrenheit` | `boolean` | `true` | Use Fahrenheit for temperature |
-| `editable` | `boolean` | `true` | Allow editing of vital signs |
-| `assistantRoute` | `string` | `""` | API endpoint for AI analysis |
-
-## Data Interface
-```typescript
-interface IVitalSignsData {
-  bloodPressure: {
-    systolic: number | null;
-    diastolic: number | null;
-  };
-  heartRate: number | null;
-  respiratoryRate: number | null;
-  temperature: number | null;
-  bloodOxygen: {
-    saturation: number | null;
-    fiO2: number | null;
-  };
-}
-```
-
-## Features
-
-- ✅ **Complete Coverage**: Blood pressure, heart rate, respiratory rate, temperature, and SpO2
-- ✅ **FHIR R4 Compliant**: Automatic conversion to FHIR Bundle format
-- ✅ **Medical Validation**: Built-in clinical validation rules and alerts
-- ✅ **AI Integration**: Optional AI assistant for vital signs interpretation
-- ✅ **Unit Support**: Fahrenheit/Celsius temperature conversion
-- ✅ **Responsive**: Optimized for desktop and mobile devices
-- ✅ **Accessible**: Keyboard navigation and screen reader support
-
-## Examples
-
-### Pre-filled Data
-```jsx
-
-```
-
-### Read-Only Display
-```jsx
-
-```
-
-### With AI Analysis
-```jsx
-
-```
-
-## Validation Rules
-
-| Vital Sign | Valid Range | Categories |
-|------------|-------------|------------|
-| Blood Pressure | Systolic: 50-350 mmHg<br>Diastolic: 10-130 mmHg | High (≥130/90), Low (<90/60), Normal |
-| Heart Rate | 30-220 bpm | Elevated (>100), Low (<60), Normal (60-100) |
-| Respiratory Rate | 8-40 breaths/min | Elevated (>18), Low (<12), Normal (12-18) |
-| Temperature | 95-107°F (35-42°C) | Fever (≥100.4°F/38°C), Hypothermia (<95°F/35°C) |
-| Blood Oxygen | SpO2: 70-100%<br>FiO2: 21-100% | Critical (<90%), Low (<95%), Normal (≥95%) |
-
 ## Medical Disclaimer
 
-⚠️ **This component is for educational and development purposes only. Always consult healthcare professionals for medical decisions.**
+This component library is for educational and development purposes only. Always consult healthcare professionals for medical decisions. All clinical logic (validations, calculations, classifications) is unit tested but not FDA-cleared.
 
 ## Version
 
-**v0.2.4 (beta)**
+**v0.3.0**
 
 ## Repository
 

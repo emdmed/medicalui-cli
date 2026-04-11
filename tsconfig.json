@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/components/ui/*": ["tests/__mocks__/ui/*"],
+      "@/hooks/*": ["tests/__mocks__/hooks/*"]
+    }
+  },
+  "include": ["tests/**/*.ts", "components/**/*.ts", "components/**/*.tsx"]
+}

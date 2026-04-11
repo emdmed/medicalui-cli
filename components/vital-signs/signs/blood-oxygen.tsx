@@ -54,6 +54,7 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
   const currentFio2Value = fio2Value
     ? fio2Value.toString()
     : defaultFio2Value.toString();
+
   const isLow: boolean =
     bloodOxygenValue !== null &&
     BloodOxygenValidations.spo2.isLow(bloodOxygenValue);
@@ -110,7 +111,7 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
   };
 
   return (
-    <div className="px-2 cursor-pointer relative" onClick={handleEditClick}>
+    <div className="px-2 cursor-pointer relative" role="button" aria-label="Edit oxygen saturation" onClick={handleEditClick}>
       <div className="flex items-center w-full">
         <div className="flex items-center">
           <EditSection
@@ -129,7 +130,8 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
                 onKeyDown={handleKeyDown}
                 min={BloodOxygenValidations.spo2.MIN_VALUE}
                 max={BloodOxygenValidations.spo2.MAX_VALUE}
-                placeholder="SpO2"
+                placeholder="99"
+                aria-label="SpO2 percentage"
               />
 
               <div className="flex gap-2 items-center">
@@ -137,7 +139,7 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
                   value={currentFio2Value}
                   onValueChange={handleFio2SelectChange}
                 >
-                  <SelectTrigger ref={selectRef} className="w-[90px]">
+                  <SelectTrigger ref={selectRef} className="w-[90px]" aria-label="FiO2 percentage">
                     <SelectValue placeholder="Select FiO2" />
                   </SelectTrigger>
                   <SelectContent>
@@ -155,18 +157,18 @@ const BloodOxygen: React.FC<BloodOxygenProps> = ({
 
         <div className="flex gap-2">
           {bloodOxygenValue !== null ? (
-            <div className="flex items-baseline gap-2  hover:text-accent-foreground transition-all">
+            <div className={`flex items-baseline gap-2  hover:text-accent-foreground transition-all ${isLow ? "text-destructive" : ""}`}>
               <span>{bloodOxygenValue}</span>
-                <small className="opacity-50">%</small>
-                <small
-                  className={`ms-1 ${ BloodOxygenValidations.fio2.isSupplemental(
-                    fio2Value as number,
-                  )
-                    ? "text-destructive"
-                    : ""}`}
-                >
-                  {fio2Value}%
-                </small>
+              <small className="opacity-50">%</small>
+              <small
+                className={`ms-1 ${BloodOxygenValidations.fio2.isSupplemental(
+                  fio2Value as number,
+                )
+                  ? "text-destructive"
+                  : ""}`}
+              >
+                {fio2Value}%
+              </small>
             </div>
           ) : (
             <Button size="sm" variant="ghost" className="text-xs">

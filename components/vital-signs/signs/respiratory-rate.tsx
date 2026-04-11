@@ -43,7 +43,7 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
   };
 
   const handleDelete = (): void => {
-    setRespiratoryRateValue("");
+    setRespiratoryRateValue(null);
   };
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
   const currentCategory = getRespiratoryRateCategory(respiratoryRateValue);
 
   return (
-    <div className="px-2 cursor-pointer relative">
+    <div className="px-2 cursor-pointer relative" role="button" aria-label="Edit respiratory rate">
       <div className="flex items-center" onClick={handleEditClick}>
         <EditSection
           clickedComponent={clickedComponent}
@@ -97,14 +97,17 @@ const RespiratoryRate: React.FC<RespiratoryRateProps> = ({
             value={respiratoryRateValue?.toString() || ""}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
+            placeholder="14"
             maxLength={2}
             min={RESPIRATORY_RATE_LIMITS.MIN.toString()}
             max={RESPIRATORY_RATE_LIMITS.MAX.toString()}
+            aria-label="Respiratory rate in breaths per minute"
           />
         </EditSection>
         <div>
           {respiratoryRateValue ? (
-            <span className="flex items-baseline gap-2  hover:text-accent-foreground transition-all">
+            <span className={`flex items-baseline gap-2  hover:text-accent-foreground transition-all ${currentCategory?.category !== "Normal" ? "text-destructive" : ""}`}>
+
               {respiratoryRateValue}{" "}
               <small className="opacity-50">breaths/min</small>
             </span>
