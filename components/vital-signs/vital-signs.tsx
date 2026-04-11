@@ -117,10 +117,10 @@ const VitalSigns = ({
       />
 
       <Card
-        className={`p-0 px-0 transition-all duration-200 flex w-fit ${border ? "" : "border-none shadow-none"}`}
+        className={`p-0 px-0 overflow-visible transition-all duration-200 flex w-fit ${border ? "" : "border-none shadow-none"}`}
       >
         <CardContent
-          className="flex flex-col items-end gap-2 p-1"
+          className="flex flex-col items-end gap-2 p-1 overflow-visible"
         >
           <BloodPressure
             bloodPressureValue={values.bloodPressure}
@@ -237,10 +237,10 @@ const VitalSigns = ({
       />
 
       <Card
-        className={`p-0 px-0 transition-all duration-200 flex w-fit ${border ? "" : "border-none shadow-none"}`}
+        className={`p-0 px-0 overflow-visible transition-all duration-200 flex w-fit ${border ? "" : "border-none shadow-none"}`}
       >
         <CardContent
-          className="flex items-center px-1"
+          className="flex items-center px-1 overflow-visible"
         >
           <BloodPressure
             bloodPressureValue={values.bloodPressure}
