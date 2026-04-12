@@ -3,7 +3,7 @@
 Open-source clinical UI components for React. Like shadcn/ui, but for medical interfaces.
 
 ```bash
-npx medical-ui add vital-signs
+npx medical-ui-cli add vital-signs
 ```
 
 ## Requirements
@@ -20,32 +20,32 @@ npx medical-ui add vital-signs
 
 | Component | Install | Description |
 |-----------|---------|-------------|
-| **vital-signs** | `npx medical-ui add vital-signs` | BP, HR, RR, Temp, SpO2/FiO2 with validation and FHIR R4 export |
-| **sepsis** | `npx medical-ui add sepsis` | Sepsis-3/SOFA monitoring, qSOFA screening, hour-1 bundle tracker |
-| **dka** | `npx medical-ui add dka` | DKA monitoring: glucose, ketones, K+, GCS, ABG integration |
+| **vital-signs** | `npx medical-ui-cli add vital-signs` | BP, HR, RR, Temp, SpO2/FiO2 with validation and FHIR R4 export |
+| **sepsis** | `npx medical-ui-cli add sepsis` | Sepsis-3/SOFA monitoring, qSOFA screening, hour-1 bundle tracker |
+| **dka** | `npx medical-ui-cli add dka` | DKA monitoring: glucose, ketones, K+, GCS, ABG integration |
 
 ### Calculators
 
 | Component | Install | Description |
 |-----------|---------|-------------|
-| **acid-base** | `npx medical-ui add acid-base` | ABG analyzer — disorder detection, compensation, anion gap |
-| **bmi** | `npx medical-ui add bmi` | BMI calculator with imperial/metric toggle |
-| **water-balance** | `npx medical-ui add water-balance` | Fluid intake/output tracker with insensible loss calculation |
-| **pafi** | `npx medical-ui add pafi` | PaO2/FiO2 ratio with ARDS classification |
-| **cardiology** | `npx medical-ui add cardiology` | ASCVD risk, HEART Score, CHA₂DS₂-VASc calculators |
+| **acid-base** | `npx medical-ui-cli add acid-base` | ABG analyzer — disorder detection, compensation, anion gap |
+| **bmi** | `npx medical-ui-cli add bmi` | BMI calculator with imperial/metric toggle |
+| **water-balance** | `npx medical-ui-cli add water-balance` | Fluid intake/output tracker with insensible loss calculation |
+| **pafi** | `npx medical-ui-cli add pafi` | PaO2/FiO2 ratio with ARDS classification |
+| **cardiology** | `npx medical-ui-cli add cardiology` | ASCVD risk, HEART Score, CHA₂DS₂-VASc calculators |
 
 ### Documentation
 
 | Component | Install | Description |
 |-----------|---------|-------------|
-| **clinical-notes** | `npx medical-ui add clinical-notes` | Encounter note editor with clinical highlighting and local storage |
+| **clinical-notes** | `npx medical-ui-cli add clinical-notes` | Encounter note editor with clinical highlighting and local storage |
 
 ## Commands
 
 ```bash
-npx medical-ui add <component>    # Install a component
-npx medical-ui list               # List all available components
-npx medical-ui debug              # Show debug information
+npx medical-ui-cli add <component>    # Install a component
+npx medical-ui-cli list               # List all available components
+npx medical-ui-cli debug              # Show debug information
 ```
 
 ## Quick Start
@@ -70,7 +70,7 @@ This component library is for educational and development purposes only. Always 
 
 ## Version
 
-**v0.3.0**
+**v0.3.1**
 
 ## Repository
 
