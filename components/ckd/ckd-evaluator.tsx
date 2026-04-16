@@ -225,7 +225,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
     if (!result) return null;
     return (
       <Badge
-        className={`text-[10px] ${
+        className={`text-xs ${
           result.eligible
             ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
             : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
@@ -237,7 +237,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-2">
+    <div className="w-full space-y-2">
       <Card className="overflow-visible">
         <CardContent className="p-3">
           {/* Header */}
@@ -299,7 +299,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                     />
                     <Label
                       htmlFor={`comorbid-${key}`}
-                      className="text-[10px] cursor-pointer"
+                      className="text-xs cursor-pointer"
                     >
                       {label}
                     </Label>
@@ -325,117 +325,154 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
 
           <Separator className="my-2" />
 
-          {/* Current Status */}
+          {/* Current Status + History side by side */}
           {latest ? (
-            <div className="space-y-2">
-              {/* CGA Staging */}
-              <div className="text-xs font-medium opacity-70">CGA Staging</div>
-              <div className="flex flex-wrap gap-1">
-                <Badge className={`text-[10px] ${severityColor(severity!)}`}>
-                  eGFR: {latest.egfr} mL/min/1.73m²
-                </Badge>
-                <Badge className={`text-[10px] ${severityColor(severity!)}`}>
-                  {latest.gfrCategory} — {gfrLabel}
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  ACR: {latest.acr} mg/g
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  {latest.albCategory} — {albLabel}
-                </Badge>
-                <Badge className={`text-[10px] ${riskColor(risk!)}`}>
-                  Risk: {risk}
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  Monitor: {monitoring}×/year
-                </Badge>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Left: Status */}
+              <div className="shrink-0 space-y-2">
+                {/* CGA Staging as aligned grid */}
+                <div className="text-sm font-medium opacity-70">CGA Staging</div>
+                <div className="inline-grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 text-sm items-center">
+                  <span className="font-medium opacity-60">eGFR</span>
+                  <Badge className={`text-xs ${severityColor(severity!)}`}>
+                    {latest.egfr} mL/min/1.73m²
+                  </Badge>
+                  <span className="font-medium opacity-60">GFR Category</span>
+                  <Badge className={`text-xs ${severityColor(severity!)}`}>
+                    {latest.gfrCategory} — {gfrLabel}
+                  </Badge>
+                  <span className="font-medium opacity-60">ACR</span>
+                  <span className="font-semibold">{latest.acr} mg/g</span>
+                  <span className="font-medium opacity-60">Albuminuria</span>
+                  <span className="font-semibold">{latest.albCategory} — {albLabel}</span>
+                  <span className="font-medium opacity-60">Risk</span>
+                  <Badge className={`text-xs ${riskColor(risk!)}`}>{risk}</Badge>
+                  <span className="font-medium opacity-60">Monitoring</span>
+                  <span className="font-semibold">{monitoring}×/year</span>
+                </div>
 
-              {/* KFRE */}
-              {kfre && kfre.fiveYear > 0 && (
-                <>
-                  <div className="text-xs font-medium opacity-70 mt-2">
-                    Kidney Failure Risk (KFRE)
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    <Badge variant="outline" className="text-[10px]">
-                      2-yr: {kfre.twoYear}%
-                    </Badge>
-                    <Badge
-                      className={`text-[10px] ${
-                        kfre.fiveYear >= 10
-                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                          : kfre.fiveYear >= 3
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      }`}
-                    >
-                      5-yr: {kfre.fiveYear}%
-                    </Badge>
-                    {referral && referral !== "none" && (
-                      <Badge
-                        className={`text-[10px] ${
-                          referral === "krt-planning"
-                            ? "bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100 font-semibold"
-                            : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                        }`}
-                      >
-                        {getReferralLabel(referral)}
+                {/* KFRE */}
+                {kfre && kfre.fiveYear > 0 && (
+                  <>
+                    <div className="text-sm font-medium opacity-70 mt-1">KFRE</div>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="outline" className="text-xs">
+                        2-yr: {kfre.twoYear}%
                       </Badge>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {/* Treatment Eligibility */}
-              <div className="text-xs font-medium opacity-70 mt-2">Treatment Eligibility</div>
-              <div className="flex flex-wrap gap-1">
-                {eligibilityBadge("ACEi/ARB", rasi)}
-                {eligibilityBadge("SGLT2i", sglt2i)}
-                {eligibilityBadge("Finerenone", finerenone)}
-              </div>
-
-              {/* Progression */}
-              {patientData.readings.length >= 2 && (
-                <>
-                  <div className="text-xs font-medium opacity-70 mt-2">Progression</div>
-                  <div className="flex flex-wrap gap-1">
-                    {slope !== null && (
                       <Badge
-                        className={`text-[10px] ${
-                          rapidDecline
+                        className={`text-xs ${
+                          kfre.fiveYear >= 10
                             ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                            : slope < 0
+                            : kfre.fiveYear >= 3
                               ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                               : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         }`}
                       >
-                        <TrendingDown className="h-3 w-3 mr-1 inline" />
-                        Slope: {slope > 0 ? "+" : ""}{slope} mL/min/yr
+                        5-yr: {kfre.fiveYear}%
                       </Badge>
-                    )}
-                    {rapidDecline && (
-                      <Badge className="text-[10px] bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100 font-semibold">
-                        <AlertTriangle className="h-3 w-3 mr-1 inline" />
-                        Rapid decline
-                      </Badge>
-                    )}
-                    {significantChange && (
-                      <Badge className="text-[10px] bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                        &gt;20% eGFR drop
-                      </Badge>
-                    )}
-                    {acrDoubled && (
-                      <Badge className="text-[10px] bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                        ACR doubled
-                      </Badge>
-                    )}
+                      {referral && referral !== "none" && (
+                        <Badge
+                          className={`text-xs ${
+                            referral === "krt-planning"
+                              ? "bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100 font-semibold"
+                              : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                          }`}
+                        >
+                          {getReferralLabel(referral)}
+                        </Badge>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {/* Treatment Eligibility */}
+                <div className="text-sm font-medium opacity-70 mt-1">Treatment</div>
+                <div className="flex flex-wrap gap-1">
+                  {eligibilityBadge("ACEi/ARB", rasi)}
+                  {eligibilityBadge("SGLT2i", sglt2i)}
+                  {eligibilityBadge("Finerenone", finerenone)}
+                </div>
+
+                {/* Progression */}
+                {patientData.readings.length >= 2 && (
+                  <>
+                    <div className="text-sm font-medium opacity-70 mt-1">Progression</div>
+                    <div className="flex flex-wrap gap-1">
+                      {slope !== null && (
+                        <Badge
+                          className={`text-xs ${
+                            rapidDecline
+                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                              : slope < 0
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          }`}
+                        >
+                          <TrendingDown className="h-3 w-3 mr-1 inline" />
+                          Slope: {slope > 0 ? "+" : ""}{slope} mL/min/yr
+                        </Badge>
+                      )}
+                      {rapidDecline && (
+                        <Badge className="text-xs bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100 font-semibold">
+                          <AlertTriangle className="h-3 w-3 mr-1 inline" />
+                          Rapid decline
+                        </Badge>
+                      )}
+                      {significantChange && (
+                        <Badge className="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                          &gt;20% eGFR drop
+                        </Badge>
+                      )}
+                      {acrDoubled && (
+                        <Badge className="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                          ACR doubled
+                        </Badge>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Right: History */}
+              {patientData.readings.length > 0 && (
+                <div className="flex-1 min-w-0 sm:border-l sm:pl-3 border-border/30">
+                  <div className="text-sm font-medium opacity-70 mb-1">
+                    History ({patientData.readings.length})
                   </div>
-                </>
+                  <div className="overflow-x-auto max-h-48 overflow-y-auto">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="border-b text-left opacity-70">
+                          <th className="py-1 pr-2 font-medium sticky top-0 bg-background">Date</th>
+                          <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">Cr</th>
+                          <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">ACR</th>
+                          <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">eGFR</th>
+                          <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">GFR</th>
+                          <th className="py-1 pl-1 font-medium sticky top-0 bg-background text-end">Alb</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[...patientData.readings].reverse().map((r) => (
+                          <tr
+                            key={r.id}
+                            className="border-b border-muted opacity-70 hover:opacity-100"
+                          >
+                            <td className="py-1 pr-2 whitespace-nowrap">{r.date}</td>
+                            <td className="py-1 px-1 text-end">{r.creatinine}</td>
+                            <td className="py-1 px-1 text-end">{r.acr}</td>
+                            <td className="py-1 px-1 text-end">{r.egfr}</td>
+                            <td className="py-1 px-1 text-end">{r.gfrCategory}</td>
+                            <td className="py-1 pl-1 text-end">{r.albCategory}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               )}
             </div>
           ) : (
-            <div className="text-xs opacity-50 text-center py-4">
+            <div className="text-sm opacity-50 text-center py-4">
               {patientData.age && patientData.sex
                 ? "No readings yet. Add the first reading."
                 : "Click above to set age and sex, then add a reading."}
@@ -448,7 +485,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
           {isAddingReading ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">New reading</span>
+                <span className="text-sm font-medium">New reading</span>
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"
@@ -470,7 +507,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <Label className={labelClass}>Creatinine (mg/dL)</Label>
                   <Input
@@ -489,7 +526,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                     placeholder="30"
                   />
                 </div>
-                <div className="col-span-2">
+                <div>
                   <Label className={labelClass}>Date</Label>
                   <Input
                     type="date"
@@ -501,7 +538,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
               </div>
 
               {!patientData.age || !patientData.sex ? (
-                <div className="text-[10px] text-red-500">
+                <div className="text-xs text-red-500">
                   Set age and sex first (click the header above).
                 </div>
               ) : null}
@@ -515,45 +552,6 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
             >
               <Plus className="h-3 w-3 mr-1" /> Add reading
             </Button>
-          )}
-
-          {/* Reading History */}
-          {patientData.readings.length > 0 && (
-            <>
-              <Separator className="my-2" />
-              <div className="text-xs font-medium opacity-70 mb-1">
-                History ({patientData.readings.length} readings)
-              </div>
-              <div className="overflow-x-auto max-h-48 overflow-y-auto">
-                <table className="w-full text-[10px] border-collapse">
-                  <thead>
-                    <tr className="border-b text-left opacity-70">
-                      <th className="py-1 pr-2 font-medium sticky top-0 bg-background">Date</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">Cr</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">ACR</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">eGFR</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">GFR</th>
-                      <th className="py-1 pl-1 font-medium sticky top-0 bg-background text-end">Alb</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...patientData.readings].reverse().map((r) => (
-                      <tr
-                        key={r.id}
-                        className="border-b border-muted opacity-70 hover:opacity-100"
-                      >
-                        <td className="py-1 pr-2 whitespace-nowrap">{r.date}</td>
-                        <td className="py-1 px-1 text-end">{r.creatinine}</td>
-                        <td className="py-1 px-1 text-end">{r.acr}</td>
-                        <td className="py-1 px-1 text-end">{r.egfr}</td>
-                        <td className="py-1 px-1 text-end">{r.gfrCategory}</td>
-                        <td className="py-1 pl-1 text-end">{r.albCategory}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
           )}
         </CardContent>
       </Card>
