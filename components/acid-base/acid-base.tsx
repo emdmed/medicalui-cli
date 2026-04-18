@@ -4,7 +4,7 @@
  * @props
  *   onData  — (result: Result) => void — called whenever analysis updates.
  *             Result type from ./types/interfaces.ts contains:
- *             { disorder, mixedDisorders, compensation, expectedValues,
+ *             { disorder, compensation, expectedValues,
  *               anionGap, agStatus, allDisorders, compensatoryResponse }
  *
  * @usage

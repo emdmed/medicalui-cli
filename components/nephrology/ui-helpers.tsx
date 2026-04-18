@@ -74,7 +74,7 @@ export function ValueGrid({ items }: { items: ValueItem[]; cols?: string }) {
 // --- Add reading form ---
 
 export function AddForm<K extends string>({
-  title, fields, form, setForm, onAdd, canAdd, gridCols = "grid-cols-2 sm:grid-cols-4",
+  title, fields, form, setForm, onAdd, canAdd, gridCols = "grid-cols-2 sm:grid-cols-4", children,
 }: {
   title: string;
   fields: readonly (readonly [string, K, string])[];
@@ -83,6 +83,7 @@ export function AddForm<K extends string>({
   onAdd: () => void;
   canAdd: boolean;
   gridCols?: string;
+  children?: React.ReactNode;
 }) {
   const [adding, setAdding] = useState(false);
 
@@ -115,6 +116,7 @@ export function AddForm<K extends string>({
               <Input value={form[key]} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))} placeholder={ph} className="h-6 text-xs" />
             </div>
           ))}
+          {children}
         </div>
       </CardContent>
     </Card>

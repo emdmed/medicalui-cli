@@ -35,4 +35,5 @@ export interface AnemiaReading {
   tsat: string; // % (transferrin saturation)
   iron: string; // µg/dL
   reticulocytes: string; // %
+  sex?: string; // "male" | "female"
 }

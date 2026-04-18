@@ -68,7 +68,7 @@ export const getBloodPressureCategory = (
   const { HIGH_SYSTOLIC, HIGH_DIASTOLIC, LOW_SYSTOLIC, LOW_DIASTOLIC } = 
     BLOOD_PRESSURE_LIMITS.CATEGORIES;
   
-  if (systolic > HIGH_SYSTOLIC || diastolic >= HIGH_DIASTOLIC) {
+  if (systolic >= HIGH_SYSTOLIC || diastolic >= HIGH_DIASTOLIC) {
     return { category: "High" };
   }
   

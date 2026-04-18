@@ -14,7 +14,6 @@ export interface ExpectedValues {
 
 export interface Result {
   disorder: string;
-  mixedDisorders: string[];
   compensation: string;
   expectedValues: ExpectedValues;
   anionGap: string | null;

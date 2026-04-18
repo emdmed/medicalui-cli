@@ -2,22 +2,27 @@
  * Pure water-balance calculation functions.
  */
 
-export const safeParseFloat = (value: any): number => {
+// ─── Clinical Constants ──────────────────────────────────────────────
+const INSENSIBLE_LOSS_ML_PER_KG_DAY = 12;
+const ENDOGENOUS_GENERATION_ML_PER_KG_DAY = 4.5;
+const DEFECATION_LOSS_ML_PER_STOOL = 120;
+
+export const safeParseFloat = (value: string | number | null | undefined): number => {
   if (value === "" || value === null || value === undefined) return 0;
-  const parsed = parseFloat(value);
+  const parsed = parseFloat(String(value));
   return isNaN(parsed) ? 0 : parsed;
 };
 
-export const calculateInsensibleLoss = (weightKg: any): string => {
-  return (safeParseFloat(weightKg) * 12).toFixed(0);
+export const calculateInsensibleLoss = (weightKg: string | number | null | undefined): string => {
+  return (safeParseFloat(weightKg) * INSENSIBLE_LOSS_ML_PER_KG_DAY).toFixed(0);
 };
 
-export const calculateEndogenousGeneration = (weightKg: any): string => {
-  return (safeParseFloat(weightKg) * 4.5).toFixed(0);
+export const calculateEndogenousGeneration = (weightKg: string | number | null | undefined): string => {
+  return (safeParseFloat(weightKg) * ENDOGENOUS_GENERATION_ML_PER_KG_DAY).toFixed(0);
 };
 
-export const calculateDefecationLoss = (count: any): string => {
-  return (safeParseFloat(count) * 120).toFixed(0);
+export const calculateDefecationLoss = (count: string | number | null | undefined): string => {
+  return (safeParseFloat(count) * DEFECATION_LOSS_ML_PER_STOOL).toFixed(0);
 };
 
 export const calculateWaterBalance = (

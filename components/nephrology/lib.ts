@@ -209,3 +209,124 @@ export function needsIronSupplementation(
   }
   return { needed: false, reason: "Adequate iron stores" };
 }
+
+/**
+ * Sex-specific anemia classification (KDIGO 2012).
+ * Male: Hb <13 g/dL anemic; Female: Hb <12 g/dL anemic.
+ * Severity: ≥threshold = none; <threshold & ≥10 = mild; <10 & ≥7 = moderate; <7 = severe.
+ */
+export function classifyAnemiaBySex(
+  hb: string,
+  sex: string,
+): { label: string; severity: "normal" | "warning" | "critical"; anemic: boolean } {
+  const v = sf(hb);
+  if (v === 0) return { label: "—", severity: "normal", anemic: false };
+
+  const isFemale = sex.toLowerCase() === "female" || sex.toLowerCase() === "f";
+  const threshold = isFemale ? 12 : 13;
+
+  if (v >= threshold) return { label: "Normal", severity: "normal", anemic: false };
+  if (v >= 10) return { label: "Mild anemia", severity: "warning", anemic: true };
+  if (v >= 7) return { label: "Moderate anemia", severity: "critical", anemic: true };
+  return { label: "Severe anemia", severity: "critical", anemic: true };
+}
+
+/**
+ * ESA eligibility: Hb <10 g/dL AND iron replete (ferritin ≥100, TSAT ≥20%).
+ */
+export function checkESAEligibility(
+  hb: string,
+  ferritin: string,
+  tsat: string,
+  sex: string,
+): { eligible: boolean; reason: string } {
+  const v = sf(hb);
+  const f = sf(ferritin);
+  const t = sf(tsat);
+  if (v === 0) return { eligible: false, reason: "Invalid hemoglobin value" };
+
+  const isFemale = sex.toLowerCase() === "female" || sex.toLowerCase() === "f";
+  const threshold = isFemale ? 12 : 13;
+
+  if (v >= threshold) return { eligible: false, reason: "Not anemic; ESA not indicated" };
+  if (v >= 10) return { eligible: false, reason: "Hb ≥10 g/dL; ESA not yet indicated" };
+  if (f < 100 || t < 20) return { eligible: false, reason: "Iron deficient; replete iron before ESA" };
+  return { eligible: true, reason: "Hb <10 g/dL with adequate iron stores; ESA may be considered" };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHOSPHO-CALCIC RECOMMENDATIONS
+// ═══════════════════════════════════════════════════════════════════
+
+/** Phosphate recommendation based on GFR category. Target 2.5–4.5 mg/dL for G3a-G5. */
+export function getPhosphateRecommendation(
+  phosphorus: string,
+  gfrCategory?: string,
+): { status: string; recommendation: string } {
+  const v = sf(phosphorus);
+  if (v === 0) return { status: "unknown", recommendation: "" };
+
+  const advanced = ["G3a", "G3b", "G4", "G5"].includes(gfrCategory ?? "");
+
+  if (!advanced) {
+    if (v >= 2.5 && v <= 4.5) return { status: "normal", recommendation: "Phosphate within normal range" };
+    return {
+      status: v < 2.5 ? "low" : "high",
+      recommendation: v < 2.5 ? "Phosphate below normal range; evaluate cause" : "Phosphate above normal range; evaluate cause",
+    };
+  }
+
+  if (v < 2.5) return { status: "low", recommendation: "Phosphate below target; evaluate cause" };
+  if (v <= 4.5) return { status: "normal", recommendation: "Phosphate within target range (2.5–4.5 mg/dL)" };
+  return { status: "high", recommendation: "Phosphate elevated; consider dietary restriction and phosphate binders" };
+}
+
+/** PTH recommendation by GFR category. Normal range for G1-G3b; 2–9× UNL for G4-G5. */
+export function getPTHRecommendation(
+  pth: string,
+  gfrCategory?: string,
+): { status: string; recommendation: string } {
+  const v = sf(pth);
+  if (v === 0) return { status: "unknown", recommendation: "" };
+
+  const UNL = 65;
+
+  if (gfrCategory === "G4" || gfrCategory === "G5") {
+    const lower = 2 * UNL;
+    const upper = 9 * UNL;
+    if (v < lower) return { status: "low", recommendation: "PTH below 2× UNL; avoid over-suppression" };
+    if (v <= upper) return { status: "acceptable", recommendation: `PTH within acceptable range for ${gfrCategory} (2–9× UNL)` };
+    return { status: "high", recommendation: "PTH exceeds 9× UNL; consider active vitamin D or calcimimetics" };
+  }
+
+  if (v <= UNL) return { status: "normal", recommendation: "PTH within normal range" };
+  return { status: "high", recommendation: "PTH elevated; evaluate for secondary hyperparathyroidism" };
+}
+
+/** Vitamin D recommendation. <20 deficient, 20-29 insufficient, ≥30 sufficient. */
+export function getVitaminDRecommendation(
+  vitaminD: string,
+): { status: string; recommendation: string } {
+  const v = sf(vitaminD);
+  if (v === 0) return { status: "unknown", recommendation: "" };
+
+  if (v < 20) return { status: "deficient", recommendation: "Vitamin D deficient; supplement with cholecalciferol" };
+  if (v < 30) return { status: "insufficient", recommendation: "Vitamin D insufficient; consider supplementation" };
+  return { status: "sufficient", recommendation: "Vitamin D sufficient; maintain current intake" };
+}
+
+/** CKD-MBD monitoring frequency by GFR category (KDIGO CKD-MBD 2017). */
+export function getCKDMBDMonitoring(
+  gfrCategory: string,
+): { phosphate: string; calcium: string; pth: string; vitaminD: string } {
+  if (gfrCategory === "G5") {
+    return { phosphate: "Every 1–3 months", calcium: "Every 1–3 months", pth: "Every 3–6 months", vitaminD: "Baseline, then per clinical indication" };
+  }
+  if (gfrCategory === "G4") {
+    return { phosphate: "Every 6–12 months", calcium: "Every 6–12 months", pth: "Every 6–12 months", vitaminD: "Baseline, then per clinical indication" };
+  }
+  if (gfrCategory === "G3a" || gfrCategory === "G3b") {
+    return { phosphate: "Baseline, then per clinical indication", calcium: "Baseline, then per clinical indication", pth: "Baseline, then per clinical indication", vitaminD: "Baseline, then per clinical indication" };
+  }
+  return { phosphate: "Not routinely monitored", calcium: "Not routinely monitored", pth: "Not routinely monitored", vitaminD: "Per clinical indication" };
+}

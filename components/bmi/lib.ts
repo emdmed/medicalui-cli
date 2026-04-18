@@ -2,6 +2,12 @@
  * Pure BMI calculation functions.
  */
 
+// Realistic upper bounds to reject data-entry errors
+const MAX_WEIGHT_KG = 700;     // heaviest recorded human ~635 kg
+const MAX_WEIGHT_LBS = 1500;   // ~680 kg
+const MAX_HEIGHT_M = 2.75;     // tallest recorded human 2.72 m
+const MAX_HEIGHT_IN = 108;     // 9 feet
+
 export const calculateBMI = (
   w: string,
   hFt: string,
@@ -10,24 +16,21 @@ export const calculateBMI = (
   metric: boolean,
 ): string | null => {
   const weightNum = parseFloat(w);
+  if (isNaN(weightNum) || weightNum <= 0) return null;
 
-  if (weightNum > 0) {
-    if (metric) {
-      const heightNum = parseFloat(hM);
-      if (heightNum > 0) {
-        return (weightNum / (heightNum * heightNum)).toFixed(1);
-      }
-    } else {
-      const feet = parseFloat(hFt) || 0;
-      const inches = parseFloat(hIn) || 0;
-      const totalInches = feet * 12 + inches;
-
-      if (totalInches > 0) {
-        return ((weightNum / (totalInches * totalInches)) * 703).toFixed(1);
-      }
-    }
+  if (metric) {
+    if (weightNum > MAX_WEIGHT_KG) return null;
+    const heightNum = parseFloat(hM);
+    if (isNaN(heightNum) || heightNum <= 0 || heightNum > MAX_HEIGHT_M) return null;
+    return (weightNum / (heightNum * heightNum)).toFixed(1);
+  } else {
+    if (weightNum > MAX_WEIGHT_LBS) return null;
+    const feet = parseFloat(hFt) || 0;
+    const inches = parseFloat(hIn) || 0;
+    const totalInches = feet * 12 + inches;
+    if (totalInches <= 0 || totalInches > MAX_HEIGHT_IN) return null;
+    return ((weightNum / (totalInches * totalInches)) * 703).toFixed(1);
   }
-  return null;
 };
 
 export const getBMICategory = (bmi: string | null): string => {

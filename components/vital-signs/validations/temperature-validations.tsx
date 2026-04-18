@@ -91,7 +91,7 @@ export const getTemperatureStatus = (
   return null;
 };
 
-export const parseTemperatureValue = (value: string | number): number => {
+export const parseTemperatureValue = (value: string | number): number | null => {
   if(!value) return null
   const parsed = parseFloat(value.toString());
   return isNaN(parsed) ? 0 : parsed;

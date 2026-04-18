@@ -1,7 +1,7 @@
 import { safeFloat } from "./utils/safeFloat";
-import { ExpectedValues } from "./types/interfaces";
+import { Values, ExpectedValues } from "./types/interfaces";
 
-export const analyze = ({ values, isChronic }) => {
+export const analyze = ({ values, isChronic }: { values: Values; isChronic: boolean }) => {
   const pH = safeFloat(values.pH);
   const pCO2 = safeFloat(values.pCO2);
   const HCO3 = safeFloat(values.HCO3);
@@ -361,7 +361,6 @@ export const analyze = ({ values, isChronic }) => {
     disorder: primaryDisorder,
     compensatoryResponse,
     additionalDisorders,
-    mixedDisorders: [...additionalDisorders], // for backward compatibility
     compensation,
     interpretation,
     expectedValues,

@@ -152,6 +152,7 @@ export const assessReferralNeed = (kfre5yr: string): string => {
   const val = safeParseFloat(kfre5yr);
   if (val >= 40) return "krt-planning";
   if (val >= 10) return "multidisciplinary";
+  if (val >= 5) return "nephrology";
   if (val >= 3) return "nephrology";
   return "none";
 };
@@ -219,13 +220,23 @@ export const calculateEGFRSlope = (
 ): number => {
   if (!Array.isArray(readings) || readings.length < 2) return 0;
 
-  const points = readings
+  const parsed = readings
     .map((r) => ({
       egfr: typeof r.egfr === "number" ? r.egfr : parseFloat(String(r.egfr)),
       time: new Date(r.date).getTime(),
     }))
     .filter((p) => !isNaN(p.egfr) && !isNaN(p.time))
     .sort((a, b) => a.time - b.time);
+
+  // Deduplicate by timestamp — keep last reading per date to avoid division by zero
+  const seen = new Set<number>();
+  const points: typeof parsed = [];
+  for (let i = parsed.length - 1; i >= 0; i--) {
+    if (!seen.has(parsed[i].time)) {
+      seen.add(parsed[i].time);
+      points.unshift(parsed[i]);
+    }
+  }
 
   if (points.length < 2) return 0;
 
