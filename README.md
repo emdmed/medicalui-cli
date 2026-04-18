@@ -24,6 +24,16 @@ npx medical-ui-cli add vital-signs
 | **sepsis** | `npx medical-ui-cli add sepsis` | Sepsis-3/SOFA monitoring, qSOFA screening, hour-1 bundle tracker |
 | **dka** | `npx medical-ui-cli add dka` | DKA monitoring: glucose, ketones, K+, GCS, ABG integration |
 
+### Nephrology
+
+| Component | Install | Description |
+|-----------|---------|-------------|
+| **nephrology** (group) | `npx medical-ui-cli add nephrology` | Full nephrology suite — installs both CKD and nephrology modules |
+| **ckd** | `npx medical-ui-cli add ckd` | CKD evaluator: GFR staging, albuminuria, risk classification |
+| **phospho-calcic** | `npx medical-ui-cli add phospho-calcic` | Phospho-calcic balance (installs nephrology module) |
+| **anemia** | `npx medical-ui-cli add anemia` | Renal anemia tracking (installs nephrology module) |
+| **cardio-metabolic** | `npx medical-ui-cli add cardio-metabolic` | Cardio-metabolic risk in CKD (installs nephrology module) |
+
 ### Calculators
 
 | Component | Install | Description |
@@ -44,7 +54,9 @@ npx medical-ui-cli add vital-signs
 
 ```bash
 npx medical-ui-cli add <component>    # Install a component
-npx medical-ui-cli list               # List all available components
+npx medical-ui-cli add <group>        # Install a component group (e.g. nephrology)
+npx medical-ui-cli add <sub-component> # Install via sub-component alias
+npx medical-ui-cli list               # List all available components, groups, and aliases
 npx medical-ui-cli debug              # Show debug information
 ```
 
@@ -70,7 +82,7 @@ This component library is for educational and development purposes only. Always 
 
 ## Version
 
-**v0.3.1**
+**v0.3.6**
 
 ## Repository
 
