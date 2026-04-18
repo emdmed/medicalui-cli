@@ -19,10 +19,24 @@ const dependencies = {
   "bmi": "",
   "cardiology": "",
   "clinical-notes": "",
+  "ckd": "",
   "dka": "",
+  "nephrology": "",
   "pafi": "",
   "sepsis": "",
   "water-balance": "",
+};
+
+// Groups allow installing multiple folder components at once
+const groups = {
+  nephrology: ["ckd", "nephrology"],
+};
+
+// Sub-component aliases that map to their parent folder
+const subComponents = {
+  "phospho-calcic": "nephrology",
+  "anemia": "nephrology",
+  "cardio-metabolic": "nephrology",
 };
 
 const componentsJsonFilePath = path.join(process.cwd(), "components.json");
@@ -166,25 +180,52 @@ program
     console.log("Debug: Component route:", componentRoute);
 
     try {
-      // Check if component is a folder or a file
-      const componentFolderPath = path.join(packageComponentsPath, str);
-      const componentFilePath = path.join(packageComponentsPath, `${str}.tsx`);
+      // Resolve which folders to copy
+      let componentsToCopy = [];
 
-      if (fs.existsSync(componentFolderPath) && fs.statSync(componentFolderPath).isDirectory()) {
-        // Component is a folder - copy entire directory structure
-        console.log(`Copying folder component: ${str}`);
-        const destinationPath = path.join(componentRoute, str);
-        await copyDirectoryRecursive(componentFolderPath, destinationPath);
-        console.log(`Folder component ${str} successfully copied to ${destinationPath}`);
-      } else if (fs.existsSync(componentFilePath)) {
-        // Component is a single file - copy the file
-        console.log(`Copying file component: ${str}`);
-        await copyComponent(componentRoute, str);
+      if (groups[str]) {
+        // It's a group — copy each folder in the group
+        console.log(`"${str}" is a group containing: ${groups[str].join(", ")}`);
+        componentsToCopy = groups[str];
+      } else if (subComponents[str]) {
+        // It's a sub-component alias — copy the parent folder
+        const parent = subComponents[str];
+        console.log(`"${str}" is a sub-component of "${parent}", copying ${parent}/`);
+        componentsToCopy = [parent];
       } else {
-        throw new Error(`Component "${str}" not found as either a folder or file in ${packageComponentsPath}`);
+        // Check if it's a folder or file component (existing behavior)
+        const componentFolderPath = path.join(packageComponentsPath, str);
+        const componentFilePath = path.join(packageComponentsPath, `${str}.tsx`);
+
+        if (fs.existsSync(componentFolderPath) && fs.statSync(componentFolderPath).isDirectory()) {
+          componentsToCopy = [str];
+        } else if (fs.existsSync(componentFilePath)) {
+          // Component is a single file - copy the file
+          console.log(`Copying file component: ${str}`);
+          await copyComponent(componentRoute, str);
+          await installDependencies(str);
+          console.log(`Successfully added ${str}!`);
+          process.exit(0);
+          return;
+        } else {
+          throw new Error(`Component "${str}" not found. Run "medical-ui list" to see available components.`);
+        }
       }
 
-      await installDependencies(str);
+      // Copy each folder component
+      for (const componentName of componentsToCopy) {
+        const componentFolderPath = path.join(packageComponentsPath, componentName);
+        const destinationPath = path.join(componentRoute, componentName);
+        console.log(`Copying folder component: ${componentName}`);
+        await copyDirectoryRecursive(componentFolderPath, destinationPath);
+        console.log(`Folder component ${componentName} successfully copied to ${destinationPath}`);
+      }
+
+      // Install dependencies for each component
+      for (const componentName of componentsToCopy) {
+        await installDependencies(componentName);
+      }
+
       console.log(`Successfully added ${str}!`);
       process.exit(0);
     } catch (error) {
@@ -198,6 +239,26 @@ program.command("list").action(async () => {
   const componentsPath = path.join(__dirname, "components");
 
   try {
+    // Show groups
+    const groupNames = Object.keys(groups);
+    if (groupNames.length > 0) {
+      console.log("Component groups (installs multiple components):");
+      for (const groupName of groupNames) {
+        console.log(`  ${groupName} → ${groups[groupName].join(", ")}`);
+      }
+      console.log();
+    }
+
+    // Show sub-component aliases
+    const subComponentNames = Object.keys(subComponents);
+    if (subComponentNames.length > 0) {
+      console.log("Sub-component aliases (installs parent folder):");
+      for (const alias of subComponentNames) {
+        console.log(`  ${alias} → ${subComponents[alias]}/`);
+      }
+      console.log();
+    }
+
     if (fs.existsSync(componentsPath)) {
       const items = await fsPromises.readdir(componentsPath, {
         withFileTypes: true,
@@ -206,10 +267,10 @@ program.command("list").action(async () => {
 
       items.forEach((item) => {
         if (item.isDirectory()) {
-          console.log(`  📁 ${item.name}/ (folder component)`);
+          console.log(`  ${item.name}/ (folder component)`);
         } else if (item.name.endsWith(".tsx") || item.name.endsWith(".ts")) {
           const componentName = item.name.replace(/\.(tsx|ts)$/, "");
-          console.log(`  📄 ${componentName} (file component)`);
+          console.log(`  ${componentName} (file component)`);
         }
       });
     } else {
