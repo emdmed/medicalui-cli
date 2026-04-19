@@ -25,11 +25,13 @@ const dependencies = {
   "pafi": "",
   "sepsis": "",
   "water-balance": "",
+  "base": "",
 };
 
 // Groups allow installing multiple folder components at once
 const groups = {
   nephrology: ["ckd", "nephrology"],
+  base: ["base"],
 };
 
 // Sub-component aliases that map to their parent folder
@@ -37,6 +39,7 @@ const subComponents = {
   "phospho-calcic": "nephrology",
   "anemia": "nephrology",
   "cardio-metabolic": "nephrology",
+  "patient": "base",
 };
 
 const componentsJsonFilePath = path.join(process.cwd(), "components.json");
