@@ -116,6 +116,17 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
 
   const prevDataRef = useRef<string>("");
 
+  // Sync inbound data prop changes (e.g. age/sex from Patient card)
+  useEffect(() => {
+    if (!data) return;
+    const s = JSON.stringify(data);
+    if (s !== prevDataRef.current) {
+      prevDataRef.current = s;
+      setPatientData(data);
+    }
+  }, [data]);
+
+  // Emit outbound data changes
   useEffect(() => {
     const serialized = JSON.stringify(patientData);
     if (serialized !== prevDataRef.current) {
