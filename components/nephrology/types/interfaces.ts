@@ -11,6 +11,8 @@ export interface CardioMetabolicReading {
   glucose: string; // mg/dL
   sbp: string; // mmHg
   dbp: string; // mmHg
+  lpa: string; // mg/dL — Lp(a), lifetime marker
+  apoB: string; // mg/dL — ApoB
 }
 
 // ─── Phospho-calcic ────────────────────────────────────────────────

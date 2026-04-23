@@ -21,14 +21,29 @@ export interface CKDReading {
   albCategory: string;   // A1–A3
 }
 
+export type CKDCauseCategory =
+  | ""
+  | "glomerular"
+  | "tubulointerstitial"
+  | "vascular"
+  | "cystic-congenital"
+  | "systemic"
+  | "unknown";
+
 export interface CKDPatientData {
   // Demographics
   age: string;
   sex: string;           // "male" | "female"
 
+  // Etiology
+  causeCategory: CKDCauseCategory;
+  causeDetail: string;   // free-text specific cause
+
   // Comorbidities (for treatment eligibility)
   hasDiabetes: boolean;
   hasHeartFailure: boolean;
+  hasPriorCVD: boolean;
+  hasKidneyTransplant: boolean;
   onMaxRASi: boolean;
   potassiumNormal: boolean;
 

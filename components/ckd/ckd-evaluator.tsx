@@ -22,7 +22,6 @@
  *   All results render inline below inputs — no absolute positioning.
  */
 import React, { useState, useRef, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,16 +56,16 @@ import {
   hasACRDoubling,
   getCKDSeverity,
 } from "./lib";
-import type { CKDPatientData, CKDReading, CKDProps } from "./types/ckd";
+import type { CKDPatientData, CKDReading, CKDProps, CKDCauseCategory } from "./types/ckd";
 
 const severityColor = (level: string): string => {
   switch (level) {
     case "normal":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      return "severity-normal";
     case "warning":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      return "severity-warning";
     case "critical":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      return "severity-critical";
     default:
       return "";
   }
@@ -75,25 +74,41 @@ const severityColor = (level: string): string => {
 const riskColor = (risk: string): string => {
   switch (risk) {
     case "green":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      return "severity-normal";
     case "yellow":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      return "severity-watch";
     case "orange":
-      return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+      return "severity-warning";
     case "red":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      return "severity-critical";
     case "deep-red":
-      return "bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100";
+      return "severity-urgent";
     default:
       return "";
   }
 };
 
+const CAUSE_CATEGORIES: { value: CKDCauseCategory; label: string }[] = [
+  { value: "glomerular", label: "Glomerular" },
+  { value: "tubulointerstitial", label: "Tubulointerstitial" },
+  { value: "vascular", label: "Vascular" },
+  { value: "cystic-congenital", label: "Cystic / Congenital" },
+  { value: "systemic", label: "Systemic" },
+  { value: "unknown", label: "Unknown" },
+];
+
+const getCauseCategoryLabel = (cat: CKDCauseCategory): string =>
+  CAUSE_CATEGORIES.find((c) => c.value === cat)?.label ?? "";
+
 const emptyPatient: CKDPatientData = {
   age: "",
   sex: "",
+  causeCategory: "",
+  causeDetail: "",
   hasDiabetes: false,
   hasHeartFailure: false,
+  hasPriorCVD: false,
+  hasKidneyTransplant: false,
   onMaxRASi: false,
   potassiumNormal: true,
   readings: [],
@@ -116,7 +131,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
 
   const prevDataRef = useRef<string>("");
 
-  // Sync inbound data prop changes (e.g. age/sex from Patient card)
+  // Sync inbound data prop changes
   useEffect(() => {
     if (!data) return;
     const s = JSON.stringify(data);
@@ -227,7 +242,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
     setIsAddingReading(false);
   };
 
-  const labelClass = "text-xs opacity-60";
+  const labelClass = "text-xs text-muted-foreground";
 
   const eligibilityBadge = (
     label: string,
@@ -238,8 +253,8 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
       <Badge
         className={`text-xs ${
           result.eligible
-            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+            ? "severity-normal"
+            : "bg-muted text-muted-foreground"
         }`}
       >
         {label}: {result.eligible ? `Yes (${result.grade})` : "No"}
@@ -249,259 +264,301 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
 
   return (
     <div className="w-full space-y-2">
-      <Card className="overflow-visible">
-        <CardContent className="p-3">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              <span className="font-semibold text-sm">CKD Evaluator</span>
+      <div className="border border-border rounded-sm p-2">
+        {/* Header */}
+        <div className="flex items-center justify-between -mx-2 -mt-2 mb-2 px-2 py-1.5 bg-secondary rounded-t-sm">
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            <span className="font-heading font-semibold text-sm">CKD Evaluator</span>
+          </div>
+          {!isAddingReading && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setIsAddingReading(true)}
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Demographics — single compact row */}
+        {isEditingHeader ? (
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <Input
+              value={tempAge}
+              onChange={(e) => setTempAge(e.target.value)}
+              className="text-end w-14 h-6 text-xs"
+              placeholder="Age"
+              aria-label="Patient age"
+            />
+            <Input
+              value={tempSex}
+              onChange={(e) => setTempSex(e.target.value)}
+              className="text-end w-16 h-6 text-xs"
+              placeholder="Sex"
+              aria-label="Patient sex"
+            />
+            <span className="text-border">|</span>
+            {([
+              ["hasDiabetes", "DM"],
+              ["hasHeartFailure", "HF"],
+              ["hasPriorCVD", "CVD"],
+              ["hasKidneyTransplant", "Tx"],
+            ] as const).map(([key, label]) => (
+              <div key={key} className="flex items-center gap-1">
+                <Checkbox
+                  checked={patientData[key]}
+                  onCheckedChange={(c) =>
+                    setPatientData((prev) => ({ ...prev, [key]: !!c }))
+                  }
+                  id={`comorbid-${key}`}
+                  className="h-3.5 w-3.5"
+                  aria-label={label}
+                />
+                <Label htmlFor={`comorbid-${key}`} className="text-xs cursor-pointer">
+                  {label}
+                </Label>
+              </div>
+            ))}
+            <div className="flex gap-0.5 ml-auto">
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={saveHeader}>
+                <Check className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setIsEditingHeader(false)}>
+                <X className="h-3 w-3" />
+              </Button>
             </div>
           </div>
+        ) : (
+          <div
+            className="text-xs text-muted-foreground mb-1.5 cursor-pointer hover:text-foreground"
+            onClick={() => {
+              setTempAge(patientData.age);
+              setTempSex(patientData.sex);
+              setIsEditingHeader(true);
+            }}
+          >
+            {patientData.age || "—"}y {patientData.sex ? patientData.sex.charAt(0).toUpperCase() : "—"}
+            {patientData.hasDiabetes && " · DM"}
+            {patientData.hasHeartFailure && " · HF"}
+            {patientData.hasPriorCVD && " · CVD"}
+            {patientData.hasKidneyTransplant && " · Tx"}
+          </div>
+        )}
 
-          {/* Demographics */}
-          {isEditingHeader ? (
-            <div className="space-y-2 mb-2">
-              <div className="flex items-center gap-2">
-                <Label className={labelClass}>Age</Label>
-                <Input
-                  value={tempAge}
-                  onChange={(e) => setTempAge(e.target.value)}
-                  className="text-end w-[70px] h-7"
-                  placeholder="55"
-                  aria-label="Patient age"
-                />
-                <Label className={labelClass}>Sex</Label>
-                <Input
-                  value={tempSex}
-                  onChange={(e) => setTempSex(e.target.value)}
-                  className="text-end w-[80px] h-7"
-                  placeholder="male"
-                  aria-label="Patient sex"
-                />
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={saveHeader}>
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => setIsEditingHeader(false)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-              {/* Comorbidities */}
-              <div className="grid grid-cols-2 gap-1">
-                {([
-                  ["hasDiabetes", "Diabetes"],
-                  ["hasHeartFailure", "Heart failure"],
-                  ["onMaxRASi", "On max RASi"],
-                  ["potassiumNormal", "K+ normal"],
-                ] as const).map(([key, label]) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <Checkbox
-                      checked={patientData[key]}
-                      onCheckedChange={(c) =>
-                        setPatientData((prev) => ({ ...prev, [key]: !!c }))
-                      }
-                      id={`comorbid-${key}`}
-                      aria-label={label}
-                    />
-                    <Label
-                      htmlFor={`comorbid-${key}`}
-                      className="text-xs cursor-pointer"
-                    >
-                      {label}
-                    </Label>
-                  </div>
+        {/* ═══ HERO: Stage + Cause (compact) ═══ */}
+        {latest ? (
+          <div className={`-mx-2 px-2 py-1.5 mb-2 border-b border-border/40 ${riskColor(risk!)}`}>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-lg font-heading font-bold tracking-tight">
+                {latest.gfrCategory}-{latest.albCategory}
+              </span>
+              <span className="text-xs opacity-70">
+                eGFR {latest.egfr} · ACR {latest.acr} mg/g · {monitoring}×/yr
+              </span>
+              <div className="flex flex-wrap gap-1 ml-auto">
+                {CAUSE_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    onClick={() =>
+                      setPatientData((prev) => ({
+                        ...prev,
+                        causeCategory: prev.causeCategory === cat.value ? "" : cat.value,
+                      }))
+                    }
+                    className={`text-[11px] px-1.5 py-0.5 rounded-sm border transition-colors ${
+                      patientData.causeCategory === cat.value
+                        ? "border-primary bg-primary/10 text-primary font-semibold"
+                        : "border-border/60 hover:border-primary/40 text-muted-foreground"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
                 ))}
               </div>
             </div>
-          ) : (
-            <div
-              className="text-xs opacity-60 mb-2 cursor-pointer hover:opacity-100"
-              onClick={() => {
-                setTempAge(patientData.age);
-                setTempSex(patientData.sex);
-                setIsEditingHeader(true);
-              }}
-            >
-              Age: {patientData.age || "—"} | Sex: {patientData.sex || "—"}
-              {patientData.hasDiabetes && " | DM"}
-              {patientData.hasHeartFailure && " | HF"}
-              {patientData.onMaxRASi && " | RASi"}
+          </div>
+        ) : (
+          <div className="mb-2">
+            <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">CKD Cause</div>
+            <div className="flex flex-wrap gap-1">
+              {CAUSE_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() =>
+                    setPatientData((prev) => ({
+                      ...prev,
+                      causeCategory: prev.causeCategory === cat.value ? "" : cat.value,
+                    }))
+                  }
+                  className={`text-xs px-2 py-1 rounded-sm border transition-colors ${
+                    patientData.causeCategory === cat.value
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-border hover:border-primary/40 text-muted-foreground"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
+        )}
 
-          <Separator className="my-2" />
+        <Separator className="my-2" />
 
-          {/* Current Status + History side by side */}
-          {latest ? (
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* Left: Status */}
-              <div className="shrink-0 space-y-2">
-                {/* CGA Staging as aligned grid */}
-                <div className="text-sm font-medium opacity-70">CGA Staging</div>
-                <div className="inline-grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 text-sm items-center">
-                  <span className="font-medium opacity-60">eGFR</span>
-                  <Badge className={`text-xs ${severityColor(severity!)}`}>
-                    {latest.egfr} mL/min/1.73m²
-                  </Badge>
-                  <span className="font-medium opacity-60">GFR Category</span>
-                  <Badge className={`text-xs ${severityColor(severity!)}`}>
-                    {latest.gfrCategory} — {gfrLabel}
-                  </Badge>
-                  <span className="font-medium opacity-60">ACR</span>
-                  <span className="font-semibold">{latest.acr} mg/g</span>
-                  <span className="font-medium opacity-60">Albuminuria</span>
-                  <span className="font-semibold">{latest.albCategory} — {albLabel}</span>
-                  <span className="font-medium opacity-60">Risk</span>
-                  <Badge className={`text-xs ${riskColor(risk!)}`}>{risk}</Badge>
-                  <span className="font-medium opacity-60">Monitoring</span>
-                  <span className="font-semibold">{monitoring}×/year</span>
-                </div>
-
-                {/* KFRE */}
-                {kfre && kfre.fiveYear > 0 && (
-                  <>
-                    <div className="text-sm font-medium opacity-70 mt-1">KFRE</div>
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="outline" className="text-xs">
-                        2-yr: {kfre.twoYear}%
-                      </Badge>
+        {/* Current Status + History side by side */}
+        {latest ? (
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Left: Status */}
+            <div className="shrink-0 space-y-2">
+              {/* KFRE */}
+              {kfre && kfre.fiveYear > 0 && (
+                <>
+                  <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mt-1">KFRE</div>
+                  <div className="flex flex-wrap gap-1">
+                    <Badge variant="outline" className="text-xs">
+                      2-yr: {kfre.twoYear}%
+                    </Badge>
+                    <Badge
+                      className={`text-xs ${
+                        kfre.fiveYear >= 10
+                          ? "severity-critical"
+                          : kfre.fiveYear >= 3
+                            ? "severity-warning"
+                            : "severity-normal"
+                      }`}
+                    >
+                      5-yr: {kfre.fiveYear}%
+                    </Badge>
+                    {referral && referral !== "none" && (
                       <Badge
                         className={`text-xs ${
-                          kfre.fiveYear >= 10
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                            : kfre.fiveYear >= 3
-                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                              : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          referral === "krt-planning"
+                            ? "severity-urgent font-semibold"
+                            : "severity-warning"
                         }`}
                       >
-                        5-yr: {kfre.fiveYear}%
+                        {getReferralLabel(referral)}
                       </Badge>
-                      {referral && referral !== "none" && (
-                        <Badge
-                          className={`text-xs ${
-                            referral === "krt-planning"
-                              ? "bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100 font-semibold"
-                              : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                          }`}
-                        >
-                          {getReferralLabel(referral)}
-                        </Badge>
-                      )}
-                    </div>
-                  </>
-                )}
+                    )}
+                  </div>
+                </>
+              )}
 
-                {/* Treatment Eligibility */}
-                <div className="text-sm font-medium opacity-70 mt-1">Treatment</div>
-                <div className="flex flex-wrap gap-1">
-                  {eligibilityBadge("ACEi/ARB", rasi)}
-                  {eligibilityBadge("SGLT2i", sglt2i)}
-                  {eligibilityBadge("Finerenone", finerenone)}
-                </div>
-
-                {/* Progression */}
-                {patientData.readings.length >= 2 && (
-                  <>
-                    <div className="text-sm font-medium opacity-70 mt-1">Progression</div>
-                    <div className="flex flex-wrap gap-1">
-                      {slope !== null && (
-                        <Badge
-                          className={`text-xs ${
-                            rapidDecline
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : slope < 0
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          }`}
-                        >
-                          <TrendingDown className="h-3 w-3 mr-1 inline" />
-                          Slope: {slope > 0 ? "+" : ""}{slope} mL/min/yr
-                        </Badge>
-                      )}
-                      {rapidDecline && (
-                        <Badge className="text-xs bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100 font-semibold">
-                          <AlertTriangle className="h-3 w-3 mr-1 inline" />
-                          Rapid decline
-                        </Badge>
-                      )}
-                      {significantChange && (
-                        <Badge className="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                          &gt;20% eGFR drop
-                        </Badge>
-                      )}
-                      {acrDoubled && (
-                        <Badge className="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                          ACR doubled
-                        </Badge>
-                      )}
-                    </div>
-                  </>
-                )}
+              {/* Treatment Eligibility */}
+              <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mt-1">Suggested Treatment</div>
+              <div className="flex flex-wrap gap-1">
+                {eligibilityBadge("ACEi/ARB", rasi)}
+                {eligibilityBadge("SGLT2i", sglt2i)}
+                {eligibilityBadge("Finerenone", finerenone)}
               </div>
 
-              {/* Right: History */}
-              {patientData.readings.length > 0 && (
-                <div className="flex-1 min-w-0 sm:border-l sm:pl-3 border-border/30">
-                  <div className="text-sm font-medium opacity-70 mb-1">
-                    History ({patientData.readings.length})
+              {/* Progression */}
+              {patientData.readings.length >= 2 && (
+                <>
+                  <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mt-1">Progression</div>
+                  <div className="flex flex-wrap gap-1">
+                    {slope !== null && (
+                      <Badge
+                        className={`text-xs ${
+                          rapidDecline
+                            ? "severity-critical"
+                            : slope < 0
+                              ? "severity-warning"
+                              : "severity-normal"
+                        }`}
+                      >
+                        <TrendingDown className="h-3 w-3 mr-1 inline" />
+                        Slope: {slope > 0 ? "+" : ""}{slope} mL/min/yr
+                      </Badge>
+                    )}
+                    {rapidDecline && (
+                      <Badge className="text-xs severity-urgent font-semibold">
+                        <AlertTriangle className="h-3 w-3 mr-1 inline" />
+                        Rapid decline
+                      </Badge>
+                    )}
+                    {significantChange && (
+                      <Badge className="text-xs severity-critical">
+                        &gt;20% eGFR drop
+                      </Badge>
+                    )}
+                    {acrDoubled && (
+                      <Badge className="text-xs severity-critical">
+                        ACR doubled
+                      </Badge>
+                    )}
                   </div>
-                  <div className="overflow-x-auto max-h-48 overflow-y-auto">
-                    <table className="w-full text-xs border-collapse">
-                      <thead>
-                        <tr className="border-b text-left opacity-70">
-                          <th className="py-1 pr-2 font-medium sticky top-0 bg-background">Date</th>
-                          <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">Cr</th>
-                          <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">ACR</th>
-                          <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">eGFR</th>
-                          <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">GFR</th>
-                          <th className="py-1 pl-1 font-medium sticky top-0 bg-background text-end">Alb</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[...patientData.readings].reverse().map((r) => (
-                          <tr
-                            key={r.id}
-                            className="border-b border-muted opacity-70 hover:opacity-100"
-                          >
-                            <td className="py-1 pr-2 whitespace-nowrap">{r.date}</td>
-                            <td className="py-1 px-1 text-end">{r.creatinine}</td>
-                            <td className="py-1 px-1 text-end">{r.acr}</td>
-                            <td className="py-1 px-1 text-end">{r.egfr}</td>
-                            <td className="py-1 px-1 text-end">{r.gfrCategory}</td>
-                            <td className="py-1 pl-1 text-end">{r.albCategory}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                </>
               )}
             </div>
-          ) : (
-            <div className="text-sm opacity-50 text-center py-4">
-              {patientData.age && patientData.sex
-                ? "No readings yet. Add the first reading."
-                : "Click above to set age and sex, then add a reading."}
-            </div>
-          )}
 
-          <Separator className="my-2" />
+            {/* Right: History */}
+            {patientData.readings.length > 0 && (
+              <div className="flex-1 min-w-0 sm:border-l sm:pl-3 border-border/30">
+                <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">
+                  History ({patientData.readings.length})
+                </div>
+                <div className="overflow-x-auto max-h-48 overflow-y-auto">
+                  <table className="w-full text-xs border-collapse tabular-nums">
+                    <thead>
+                      <tr className="border-b text-left">
+                        <th className="py-1 pr-2 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background">Date</th>
+                        <th className="py-1 px-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">Cr</th>
+                        <th className="py-1 px-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">ACR</th>
+                        <th className="py-1 px-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">eGFR</th>
+                        <th className="py-1 px-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">GFR</th>
+                        <th className="py-1 pl-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">Alb</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...patientData.readings].reverse().map((r, i) => (
+                        <tr
+                          key={r.id}
+                          className={`border-b border-muted ${i % 2 === 1 ? "bg-muted/10" : ""}`}
+                        >
+                          <td className="py-1 pr-2 whitespace-nowrap">{r.date}</td>
+                          <td className="py-1 px-1 text-end">{r.creatinine}</td>
+                          <td className="py-1 px-1 text-end">{r.acr}</td>
+                          <td className="py-1 px-1 text-end">{r.egfr}</td>
+                          <td className="py-1 px-1 text-end">{r.gfrCategory}</td>
+                          <td className="py-1 pl-1 text-end">{r.albCategory}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {!latest && (
+              <div className="text-sm text-muted-foreground text-center py-4">
+                {patientData.age && patientData.sex
+                  ? "No readings yet. Add the first reading."
+                  : "Click above to set age and sex, then add a reading."}
+              </div>
+            )}
+          </>
+        )}
 
-          {/* Add Reading */}
-          {isAddingReading ? (
+        {/* Add Reading — inline form */}
+        {isAddingReading && (
+          <>
+            <Separator className="my-2" />
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">New reading</span>
+                <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">New reading</span>
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-5 w-5"
                     onClick={addReading}
                     disabled={!validateReading()}
                   >
@@ -510,7 +567,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-5 w-5"
                     onClick={() => setIsAddingReading(false)}
                   >
                     <X className="h-3 w-3" />
@@ -520,7 +577,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <Label className={labelClass}>Creatinine (mg/dL)</Label>
+                  <Label className="text-[11px] font-heading uppercase tracking-wider text-muted-foreground">Creatinine (mg/dL)</Label>
                   <Input
                     value={newCreatinine}
                     onChange={(e) => setNewCreatinine(e.target.value)}
@@ -529,7 +586,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                   />
                 </div>
                 <div>
-                  <Label className={labelClass}>ACR (mg/g)</Label>
+                  <Label className="text-[11px] font-heading uppercase tracking-wider text-muted-foreground">ACR (mg/g)</Label>
                   <Input
                     value={newACR}
                     onChange={(e) => setNewACR(e.target.value)}
@@ -538,7 +595,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                   />
                 </div>
                 <div>
-                  <Label className={labelClass}>Date</Label>
+                  <Label className="text-[11px] font-heading uppercase tracking-wider text-muted-foreground">Date</Label>
                   <Input
                     type="date"
                     value={newDate}
@@ -549,23 +606,14 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
               </div>
 
               {!patientData.age || !patientData.sex ? (
-                <div className="text-xs text-red-500">
+                <div className="text-xs severity-critical-text">
                   Set age and sex first (click the header above).
                 </div>
               ) : null}
             </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full h-7 text-xs"
-              onClick={() => setIsAddingReading(true)}
-            >
-              <Plus className="h-3 w-3 mr-1" /> Add reading
-            </Button>
-          )}
-        </CardContent>
-      </Card>
+          </>
+        )}
+      </div>
     </div>
   );
 };

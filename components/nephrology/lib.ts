@@ -65,6 +65,40 @@ export function classifyTriglycerides(tg: string): {
   return { label: "Very high", severity: "critical" };
 }
 
+export function classifyLpa(lpa: string): {
+  label: string;
+  severity: "normal" | "warning" | "critical";
+} {
+  const v = sf(lpa);
+  if (v === 0) return { label: "—", severity: "normal" };
+  if (v < 30) return { label: "Normal", severity: "normal" };
+  if (v < 50) return { label: "Elevated", severity: "warning" };
+  return { label: "Very high", severity: "critical" };
+}
+
+export function classifyNonHDL(nonHdl: number): {
+  label: string;
+  severity: "normal" | "warning" | "critical";
+} {
+  if (nonHdl <= 0) return { label: "—", severity: "normal" };
+  if (nonHdl < 100) return { label: "Optimal", severity: "normal" };
+  if (nonHdl < 130) return { label: "Acceptable", severity: "normal" };
+  if (nonHdl < 160) return { label: "Borderline", severity: "warning" };
+  return { label: "Elevated", severity: "critical" };
+}
+
+export function classifyApoB(apoB: string): {
+  label: string;
+  severity: "normal" | "warning" | "critical";
+} {
+  const v = sf(apoB);
+  if (v === 0) return { label: "—", severity: "normal" };
+  if (v < 80) return { label: "Optimal", severity: "normal" };
+  if (v < 100) return { label: "Acceptable", severity: "normal" };
+  if (v < 120) return { label: "Borderline", severity: "warning" };
+  return { label: "Elevated", severity: "critical" };
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // PHOSPHO-CALCIC
 // ═══════════════════════════════════════════════════════════════════
