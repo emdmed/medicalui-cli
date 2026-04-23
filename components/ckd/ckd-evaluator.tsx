@@ -57,6 +57,7 @@ import {
   getCKDSeverity,
 } from "./lib";
 import type { CKDPatientData, CKDReading, CKDProps, CKDCauseCategory } from "./types/ckd";
+import { useContainerNarrow, ViewToggle } from "@/components/nephrology/ui-helpers";
 
 const severityColor = (level: string): string => {
   switch (level) {
@@ -120,6 +121,8 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
   );
   const [isAddingReading, setIsAddingReading] = useState(false);
   const [isEditingHeader, setIsEditingHeader] = useState(false);
+  const { containerRef, isNarrow } = useContainerNarrow();
+  const [view, setView] = useState<"latest" | "history">("latest");
   const [tempAge, setTempAge] = useState("");
   const [tempSex, setTempSex] = useState("");
   const [newCreatinine, setNewCreatinine] = useState("");
@@ -264,23 +267,26 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
 
   return (
     <div className="w-full space-y-2">
-      <div className="border border-border rounded-sm p-2">
+      <div className="border border-border rounded-sm p-2" ref={containerRef}>
         {/* Header */}
         <div className="flex items-center justify-between -mx-2 -mt-2 mb-2 px-2 py-1.5 bg-secondary rounded-t-sm">
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
             <span className="font-heading font-semibold text-sm">CKD Evaluator</span>
           </div>
-          {!isAddingReading && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={() => setIsAddingReading(true)}
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            {isNarrow && patientData.readings.length > 0 && latest && <ViewToggle view={view} onViewChange={setView} />}
+            {!isAddingReading && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setIsAddingReading(true)}
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Demographics — single compact row */}
@@ -412,9 +418,9 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
 
         {/* Current Status + History side by side */}
         {latest ? (
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className={isNarrow ? "" : "flex flex-row gap-3"}>
             {/* Left: Status */}
-            <div className="shrink-0 space-y-2">
+            {(!isNarrow || view === "latest") && <div className="shrink-0 space-y-2">
               {/* KFRE */}
               {kfre && kfre.fiveYear > 0 && (
                 <>
@@ -495,14 +501,14 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                   </div>
                 </>
               )}
-            </div>
+            </div>}
 
             {/* Right: History */}
-            {patientData.readings.length > 0 && (
-              <div className="flex-1 min-w-0 sm:border-l sm:pl-3 border-border/30">
-                <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">
+            {patientData.readings.length > 0 && (!isNarrow || view === "history") && (
+              <div className={`flex-1 min-w-0 ${!isNarrow ? "border-l pl-3 border-border/30" : ""}`}>
+                {!isNarrow && <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">
                   History ({patientData.readings.length})
-                </div>
+                </div>}
                 <div className="overflow-x-auto max-h-48 overflow-y-auto">
                   <table className="w-full text-xs border-collapse tabular-nums">
                     <thead>

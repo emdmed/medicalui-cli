@@ -7,7 +7,7 @@
 import { useState } from "react";
 import type { CardioMetabolicReading } from "./types/interfaces";
 import { classifyLDL, classifyHbA1c, classifyBPInCKD, classifyTriglycerides, classifyLpa, classifyNonHDL, classifyApoB } from "./lib";
-import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V } from "./ui-helpers";
+import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V, useContainerNarrow, ViewToggle } from "./ui-helpers";
 
 export interface CardioMetabolicProps {
   data?: CardioMetabolicReading[];
@@ -43,6 +43,8 @@ export default function CardioMetabolic({ data, onData, gfrCategory, age, hasDia
   const { readings, add, remove } = useSyncedReadings(data, onData);
   const [form, setForm] = useState({ ...EMPTY });
   const addForm = useAddForm();
+  const { containerRef, isNarrow } = useContainerNarrow();
+  const [view, setView] = useState<"latest" | "history">("latest");
   const latest = readings[readings.length - 1] ?? null;
 
   const nonHdl = latest && parseFloat(latest.totalCholesterol) && parseFloat(latest.hdl)
@@ -70,39 +72,44 @@ export default function CardioMetabolic({ data, onData, gfrCategory, age, hasDia
 
   return (
     <div className="space-y-2">
-      <div className="border border-border rounded-sm p-2">
+      <div className="border border-border rounded-sm p-2" ref={containerRef}>
         <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
           <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">Cardio-metabolic</h3>
-          {!addForm.adding && <AddFormTrigger onClick={addForm.open} />}
+          <div className="flex items-center gap-1">
+            {isNarrow && readings.length > 0 && latest && <ViewToggle view={view} onViewChange={setView} />}
+            {!addForm.adding && <AddFormTrigger onClick={addForm.open} />}
+          </div>
         </div>
         {latest ? (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="shrink-0 space-y-2">
-              <ValueGrid items={[
-                { label: "LDL", value: latest.ldl, unit: "mg/dL", cls: classifyLDL(latest.ldl) },
-                { label: "HbA1c", value: latest.hba1c, unit: "%", cls: classifyHbA1c(latest.hba1c) },
-                { label: "BP", value: `${latest.sbp}/${latest.dbp}`, unit: "mmHg", cls: classifyBPInCKD(latest.sbp, latest.dbp) },
-                { label: "Triglycerides", value: latest.triglycerides, unit: "mg/dL", cls: classifyTriglycerides(latest.triglycerides) },
-                { label: "Total Chol.", value: latest.totalCholesterol, unit: "mg/dL", cls: N },
-                { label: "HDL", value: latest.hdl, unit: "mg/dL", cls: N },
-                { label: "Non-HDL", value: nonHdl ? String(Math.round(nonHdl)) : "—", unit: "mg/dL", cls: nonHdl ? classifyNonHDL(nonHdl) : N },
-                { label: "Lp(a)", value: latest.lpa, unit: "mg/dL", cls: classifyLpa(latest.lpa) },
-                { label: "ApoB", value: latest.apoB, unit: "mg/dL", cls: classifyApoB(latest.apoB) },
-                { label: "Glucose", value: latest.glucose, unit: "mg/dL", cls: N },
-              ]} />
-              <div className={`mt-1.5 px-2 py-1 rounded-sm text-[11px] ${statinIndication.indicated ? "severity-normal" : "bg-muted/50"}`}>
-                <span className="font-medium">Statin: </span>
-                {statinIndication.indicated
-                  ? <span className="severity-normal-text">Suggested</span>
-                  : <span className="text-muted-foreground">Not suggested</span>}
-                {statinIndication.reason && statinIndication.indicated && (
-                  <span className="text-muted-foreground ml-1">— {statinIndication.reason}</span>
-                )}
+          <div className={isNarrow ? "" : "flex flex-row gap-3"}>
+            {(!isNarrow || view === "latest") && (
+              <div className="shrink-0 space-y-2">
+                <ValueGrid items={[
+                  { label: "LDL", value: latest.ldl, unit: "mg/dL", cls: classifyLDL(latest.ldl) },
+                  { label: "HbA1c", value: latest.hba1c, unit: "%", cls: classifyHbA1c(latest.hba1c) },
+                  { label: "BP", value: `${latest.sbp}/${latest.dbp}`, unit: "mmHg", cls: classifyBPInCKD(latest.sbp, latest.dbp) },
+                  { label: "Triglycerides", value: latest.triglycerides, unit: "mg/dL", cls: classifyTriglycerides(latest.triglycerides) },
+                  { label: "Total Chol.", value: latest.totalCholesterol, unit: "mg/dL", cls: N },
+                  { label: "HDL", value: latest.hdl, unit: "mg/dL", cls: N },
+                  { label: "Non-HDL", value: nonHdl ? String(Math.round(nonHdl)) : "—", unit: "mg/dL", cls: nonHdl ? classifyNonHDL(nonHdl) : N },
+                  { label: "Lp(a)", value: latest.lpa, unit: "mg/dL", cls: classifyLpa(latest.lpa) },
+                  { label: "ApoB", value: latest.apoB, unit: "mg/dL", cls: classifyApoB(latest.apoB) },
+                  { label: "Glucose", value: latest.glucose, unit: "mg/dL", cls: N },
+                ]} />
+                <div className={`mt-1.5 px-2 py-1 rounded-sm text-[11px] ${statinIndication.indicated ? "severity-normal" : "bg-muted/50"}`}>
+                  <span className="font-medium">Statin: </span>
+                  {statinIndication.indicated
+                    ? <span className="severity-normal-text">Suggested</span>
+                    : <span className="text-muted-foreground">Not suggested</span>}
+                  {statinIndication.reason && statinIndication.indicated && (
+                    <span className="text-muted-foreground ml-1">— {statinIndication.reason}</span>
+                  )}
+                </div>
               </div>
-            </div>
-            {readings.length > 0 && (
-              <div className="flex-1 min-w-0 sm:border-l sm:pl-3 border-border/30">
-                <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">History</h3>
+            )}
+            {readings.length > 0 && (!isNarrow || view === "history") && (
+              <div className={`flex-1 min-w-0 ${!isNarrow ? "border-l pl-3 border-border/30" : ""}`}>
+                {!isNarrow && <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">History</h3>}
                 <HistoryTable readings={readings} onRemove={remove} cols={[
                   { label: "LDL", render: (r) => <V v={r.ldl} s={classifyLDL(r.ldl).severity} /> },
                   { label: "HDL", render: (r) => <span className="opacity-70">{r.hdl || "—"}</span> },

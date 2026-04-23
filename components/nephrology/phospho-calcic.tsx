@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { PhosphoCalcicReading } from "./types/interfaces";
 import { calculateCaPhProduct, calculateCorrectedCalcium, classifyCalcium, classifyPhosphorus, classifyPTH, classifyVitaminD, classifyCaPhProduct, getPhosphateRecommendation, getPTHRecommendation, getVitaminDRecommendation, getCKDMBDMonitoring } from "./lib";
-import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V, severityBg } from "./ui-helpers";
+import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V, severityBg, useContainerNarrow, ViewToggle } from "./ui-helpers";
 
 export interface PhosphoCalcicProps {
   data?: PhosphoCalcicReading[];
@@ -50,6 +50,8 @@ export default function PhosphoCalcic({ data, onData, gfrCategory }: PhosphoCalc
   const { readings, add, remove } = useSyncedReadings(data, onData);
   const [form, setForm] = useState({ ...EMPTY });
   const addForm = useAddForm();
+  const { containerRef, isNarrow } = useContainerNarrow();
+  const [view, setView] = useState<"latest" | "history">("latest");
   const latest = readings[readings.length - 1] ?? null;
 
   const handleAdd = () => {
@@ -64,10 +66,13 @@ export default function PhosphoCalcic({ data, onData, gfrCategory }: PhosphoCalc
 
   return (
     <div className="space-y-2">
-      <div className="border border-border rounded-sm p-2">
+      <div className="border border-border rounded-sm p-2" ref={containerRef}>
         <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
           <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">Phospho-calcic</h3>
-          {!addForm.adding && <AddFormTrigger onClick={addForm.open} />}
+          <div className="flex items-center gap-1">
+            {isNarrow && readings.length > 0 && latest && <ViewToggle view={view} onViewChange={setView} />}
+            {!addForm.adding && <AddFormTrigger onClick={addForm.open} />}
+          </div>
         </div>
         {latest ? (() => {
           const prod = caph(latest);
@@ -75,31 +80,33 @@ export default function PhosphoCalcic({ data, onData, gfrCategory }: PhosphoCalc
           const corrCa = calculateCorrectedCalcium(latest.calcium, latest.albumin);
           const recs = collectRecommendations(latest, gfrCategory);
           return (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="shrink-0">
-                <ValueGrid items={[
-                  { label: "Calcium", value: latest.calcium, unit: "mg/dL", cls: classifyCalcium(latest.calcium) },
-                  { label: "Phosphorus", value: latest.phosphorus, unit: "mg/dL", cls: classifyPhosphorus(latest.phosphorus) },
-                  { label: "PTH", value: latest.pth, unit: "pg/mL", cls: classifyPTH(latest.pth, gfrCategory) },
-                  { label: "Vitamin D", value: latest.vitaminD, unit: "ng/mL", cls: classifyVitaminD(latest.vitaminD) },
-                  { label: "Albumin", value: latest.albumin, unit: "g/dL", cls: N },
-                  ...(prod !== null ? [{ label: "Ca×P", value: String(prod), unit: "mg²/dL²", cls: prodCls ?? N }] : []),
-                  ...(corrCa !== null ? [{ label: "Corrected Ca", value: String(corrCa), unit: "mg/dL", cls: N }] : []),
-                ]} />
-                {recs.length > 0 && (
-                  <div className="mt-1.5 space-y-0.5">
-                    {recs.map((rec) => (
-                      <div key={rec.param} className="px-2 py-1 rounded-sm text-[11px] severity-watch">
-                        <span className="font-medium">{rec.param}: </span>
-                        <span className="severity-watch-text">{rec.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              {readings.length > 0 && (
-                <div className="flex-1 min-w-0 sm:border-l sm:pl-3 border-border/30">
-                  <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">History</h3>
+            <div className={isNarrow ? "" : "flex flex-row gap-3"}>
+              {(!isNarrow || view === "latest") && (
+                <div className="shrink-0">
+                  <ValueGrid items={[
+                    { label: "Calcium", value: latest.calcium, unit: "mg/dL", cls: classifyCalcium(latest.calcium) },
+                    { label: "Phosphorus", value: latest.phosphorus, unit: "mg/dL", cls: classifyPhosphorus(latest.phosphorus) },
+                    { label: "PTH", value: latest.pth, unit: "pg/mL", cls: classifyPTH(latest.pth, gfrCategory) },
+                    { label: "Vitamin D", value: latest.vitaminD, unit: "ng/mL", cls: classifyVitaminD(latest.vitaminD) },
+                    { label: "Albumin", value: latest.albumin, unit: "g/dL", cls: N },
+                    ...(prod !== null ? [{ label: "Ca×P", value: String(prod), unit: "mg²/dL²", cls: prodCls ?? N }] : []),
+                    ...(corrCa !== null ? [{ label: "Corrected Ca", value: String(corrCa), unit: "mg/dL", cls: N }] : []),
+                  ]} />
+                  {recs.length > 0 && (
+                    <div className="mt-1.5 space-y-0.5">
+                      {recs.map((rec) => (
+                        <div key={rec.param} className="px-2 py-1 rounded-sm text-[11px] severity-watch">
+                          <span className="font-medium">{rec.param}: </span>
+                          <span className="severity-watch-text">{rec.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {readings.length > 0 && (!isNarrow || view === "history") && (
+                <div className={`flex-1 min-w-0 ${!isNarrow ? "border-l pl-3 border-border/30" : ""}`}>
+                  {!isNarrow && <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">History</h3>}
                   <HistoryTable readings={readings} onRemove={remove} cols={[
                     { label: "Ca", render: (r) => <V v={r.calcium} s={classifyCalcium(r.calcium).severity} /> },
                     { label: "P", render: (r) => <V v={r.phosphorus} s={classifyPhosphorus(r.phosphorus).severity} /> },

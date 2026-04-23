@@ -7,6 +7,46 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Plus, Check, X, Trash2 } from "lucide-react";
 
+// --- Responsive container width detection ---
+
+export function useContainerNarrow(threshold = 480) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setIsNarrow(entry.contentRect.width < threshold);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [threshold]);
+
+  return { containerRef, isNarrow };
+}
+
+export function ViewToggle({ view, onViewChange }: { view: "latest" | "history"; onViewChange: (v: "latest" | "history") => void }) {
+  return (
+    <div className="flex rounded-sm overflow-hidden border border-border/60 text-[10px]">
+      <button
+        type="button"
+        onClick={() => onViewChange("latest")}
+        className={`px-1.5 py-0.5 transition-colors ${view === "latest" ? "bg-primary/15 text-primary font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+      >
+        Latest
+      </button>
+      <button
+        type="button"
+        onClick={() => onViewChange("history")}
+        className={`px-1.5 py-0.5 border-l border-border/60 transition-colors ${view === "history" ? "bg-primary/15 text-primary font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+      >
+        History
+      </button>
+    </div>
+  );
+}
+
 // --- Severity helpers ---
 
 type Severity = "normal" | "warning" | "critical";

@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import type { AnemiaReading } from "./types/interfaces";
 import { classifyHemoglobin, classifyAnemiaBySex, classifyFerritin, classifyTSAT, needsIronSupplementation, checkESAEligibility } from "./lib";
-import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V } from "./ui-helpers";
+import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V, useContainerNarrow, ViewToggle } from "./ui-helpers";
 
 export interface AnemiaProps {
   data?: AnemiaReading[];
@@ -39,6 +39,8 @@ export default function Anemia({ data, onData, sex: propSex }: AnemiaProps) {
   const [form, setForm] = useState({ ...EMPTY });
   const [formSex, setFormSex] = useState("");
   const addForm = useAddForm();
+  const { containerRef, isNarrow } = useContainerNarrow();
+  const [view, setView] = useState<"latest" | "history">("latest");
   const latest = readings[readings.length - 1] ?? null;
 
   const handleAdd = () => {
@@ -57,10 +59,13 @@ export default function Anemia({ data, onData, sex: propSex }: AnemiaProps) {
 
   return (
     <div className="space-y-2">
-      <div className="border border-border rounded-sm p-2">
+      <div className="border border-border rounded-sm p-2" ref={containerRef}>
         <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
           <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">Anemia</h3>
-          {!addForm.adding && <AddFormTrigger onClick={addForm.open} />}
+          <div className="flex items-center gap-1">
+            {isNarrow && readings.length > 0 && latest && <ViewToggle view={view} onViewChange={setView} />}
+            {!addForm.adding && <AddFormTrigger onClick={addForm.open} />}
+          </div>
         </div>
         {latest ? (() => {
           const sex = getSex(latest);
@@ -69,35 +74,37 @@ export default function Anemia({ data, onData, sex: propSex }: AnemiaProps) {
             ? checkESAEligibility(latest.hemoglobin, latest.ferritin, latest.tsat, sex)
             : null;
           return (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="shrink-0">
-                <ValueGrid items={[
-                  { label: "Hemoglobin", value: latest.hemoglobin, unit: "g/dL", cls: hbClassification(latest.hemoglobin, sex) },
-                  { label: "Ferritin", value: latest.ferritin, unit: "ng/mL", cls: classifyFerritin(latest.ferritin) },
-                  { label: "TSAT", value: latest.tsat, unit: "%", cls: classifyTSAT(latest.tsat) },
-                  { label: "Serum iron", value: latest.iron, unit: "µg/dL", cls: N },
-                  { label: "Reticulocytes", value: latest.reticulocytes, unit: "%", cls: N },
-                ]} />
-                <div className={`mt-1.5 px-2 py-1 rounded-sm text-[11px] ${ironSupp.needed ? "severity-critical" : "severity-normal"}`}>
-                  <span className="font-medium">Fe: </span>
-                  {ironSupp.needed
-                    ? <span className="severity-critical-text">Indicated</span>
-                    : <span className="severity-normal-text">Not needed</span>}
-                  {ironSupp.reason && <span className="text-muted-foreground ml-1">— {ironSupp.reason}</span>}
-                </div>
-                {esa && (
-                  <div className={`mt-1 px-2 py-1 rounded-sm text-[11px] ${esa.eligible ? "severity-watch" : "bg-muted/50"}`}>
-                    <span className="font-medium">ESA: </span>
-                    {esa.eligible
-                      ? <span className="severity-watch-text">May be considered</span>
-                      : <span className="text-muted-foreground">Not indicated</span>}
-                    {esa.reason && <span className="text-muted-foreground ml-1">— {esa.reason}</span>}
+            <div className={isNarrow ? "" : "flex flex-row gap-3"}>
+              {(!isNarrow || view === "latest") && (
+                <div className="shrink-0">
+                  <ValueGrid items={[
+                    { label: "Hemoglobin", value: latest.hemoglobin, unit: "g/dL", cls: hbClassification(latest.hemoglobin, sex) },
+                    { label: "Ferritin", value: latest.ferritin, unit: "ng/mL", cls: classifyFerritin(latest.ferritin) },
+                    { label: "TSAT", value: latest.tsat, unit: "%", cls: classifyTSAT(latest.tsat) },
+                    { label: "Serum iron", value: latest.iron, unit: "µg/dL", cls: N },
+                    { label: "Reticulocytes", value: latest.reticulocytes, unit: "%", cls: N },
+                  ]} />
+                  <div className={`mt-1.5 px-2 py-1 rounded-sm text-[11px] ${ironSupp.needed ? "severity-critical" : "severity-normal"}`}>
+                    <span className="font-medium">Fe: </span>
+                    {ironSupp.needed
+                      ? <span className="severity-critical-text">Indicated</span>
+                      : <span className="severity-normal-text">Not needed</span>}
+                    {ironSupp.reason && <span className="text-muted-foreground ml-1">— {ironSupp.reason}</span>}
                   </div>
-                )}
-              </div>
-              {readings.length > 0 && (
-                <div className="flex-1 min-w-0 sm:border-l sm:pl-3 border-border/30">
-                  <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">History</h3>
+                  {esa && (
+                    <div className={`mt-1 px-2 py-1 rounded-sm text-[11px] ${esa.eligible ? "severity-watch" : "bg-muted/50"}`}>
+                      <span className="font-medium">ESA: </span>
+                      {esa.eligible
+                        ? <span className="severity-watch-text">May be considered</span>
+                        : <span className="text-muted-foreground">Not indicated</span>}
+                      {esa.reason && <span className="text-muted-foreground ml-1">— {esa.reason}</span>}
+                    </div>
+                  )}
+                </div>
+              )}
+              {readings.length > 0 && (!isNarrow || view === "history") && (
+                <div className={`flex-1 min-w-0 ${!isNarrow ? "border-l pl-3 border-border/30" : ""}`}>
+                  {!isNarrow && <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">History</h3>}
                   <HistoryTable readings={readings} onRemove={remove} cols={[
                     { label: "Hb", render: (r) => <V v={r.hemoglobin} s={hbClassification(r.hemoglobin, getSex(r)).severity} /> },
                     { label: "Ferritin", render: (r) => <V v={r.ferritin} s={classifyFerritin(r.ferritin).severity} /> },
