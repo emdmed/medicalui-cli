@@ -5,7 +5,6 @@
  * @behavior  Click card to enter edit mode → check risk factors → save to see score + guidance.
  */
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Zap } from "lucide-react";
@@ -20,11 +19,11 @@ import type { CHADSVAScInputs } from "../types/interfaces";
 const getSeverityColor = (severity: string): string => {
   switch (severity) {
     case "low":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      return "severity-normal";
     case "moderate":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      return "severity-warning";
     case "high":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      return "severity-critical";
     default:
       return "";
   }
@@ -93,65 +92,61 @@ const CHADSVAScCalculator = () => {
   if (isEditMode) {
     return (
       <div className="w-full">
-        <Card className="shadow-lg border p-0">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">CHA₂DS₂-VASc</span>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" onClick={saveChanges}>
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={cancelEdit}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
+        <div className="border border-border rounded-sm p-2">
+          <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
+            <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">CHA₂DS₂-VASc</span>
+            <div className="flex gap-0.5">
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={saveChanges}>
+                <Check className="h-3 w-3" />
+              </Button>
+              <Button size="icon" variant="ghost" className="h-5 w-5" onClick={cancelEdit}>
+                <X className="h-3 w-3" />
+              </Button>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              {CHECKBOXES.map(({ key, label, points }) => (
-                <label
-                  key={key}
-                  className="flex items-center gap-2 text-sm cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={temp[key]}
-                    onChange={() => toggleField(key)}
-                    className="rounded"
-                  />
-                  <span className="flex-1">{label}</span>
-                  <span className="text-xs opacity-50 font-mono">{points}</span>
-                </label>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+          <div className="space-y-2">
+            {CHECKBOXES.map(({ key, label, points }) => (
+              <label
+                key={key}
+                className="flex items-center gap-2 text-xs cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={temp[key]}
+                  onChange={() => toggleField(key)}
+                  className="rounded"
+                />
+                <span className="flex-1">{label}</span>
+                <span className="text-[11px] text-muted-foreground font-mono">{points}</span>
+              </label>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="w-full">
-      <Card
+      <div
         onClick={enterEditMode}
-        className="cursor-pointer hover:shadow-md transition-shadow duration-200 p-1"
+        className="border border-border rounded-sm p-2 cursor-pointer hover:bg-muted/30 transition-colors"
       >
-        <CardContent className="p-2">
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold">{score}/9</div>
-            <Badge className={`text-xs font-medium ${getSeverityColor(severity)}`}>
-              {category}
-            </Badge>
+        <div className="flex items-center gap-2">
+          <div className="text-2xl font-bold">{score}/9</div>
+          <Badge className={`text-xs font-medium ${getSeverityColor(severity)}`}>
+            {category}
+          </Badge>
+        </div>
+        <div className="text-xs space-y-1">
+          <div className="flex items-center gap-1">
+            <Zap className="h-3 w-3" />
+            <span>CHA₂DS₂-VASc</span>
           </div>
-          <div className="text-xs space-y-1">
-            <div className="flex items-center gap-1">
-              <Zap className="h-3 w-3" />
-              <span>CHA₂DS₂-VASc</span>
-            </div>
-            <div className="opacity-60">{action}</div>
-          </div>
-        </CardContent>
-      </Card>
+          <div className="text-muted-foreground">{action}</div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -21,7 +21,6 @@
  *       No overflow-visible fix needed on parent Cards.
  */
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -115,6 +114,8 @@ const AcidBase = ({ onData }: AcidBaseProps) => {
       : "border-green-300 bg-green-50";
   };
 
+  const labelClass = "text-[11px] font-heading uppercase tracking-wider text-muted-foreground leading-none";
+
   const animations =
     "transition-all duration-300 ease-out animate-in slide-in-from-bottom-2";
 
@@ -124,12 +125,12 @@ const AcidBase = ({ onData }: AcidBaseProps) => {
     setDisplay((prev) => !prev);
   };
   return (
-    <Card className="flex py-1 px-2 gap-2 relative w-fit">
-      <CardContent className="space-y-2 p-1 flex flex-col">
+    <div className="border border-border rounded-sm p-2 w-fit">
+      <div className="space-y-2 flex flex-col">
         <div className="flex gap-2 justify-between">
           <div className="flex gap-1">
             <div>
-              <Label className="text-xs">pH*</Label>
+              <Label className={labelClass}>pH*</Label>
               <Input
                 onClick={(e) => e.stopPropagation()}
                 type="number"
@@ -137,7 +138,7 @@ const AcidBase = ({ onData }: AcidBaseProps) => {
                 placeholder={PLACEHOLDERS.ph}
                 value={values.pH}
                 onChange={(e) => handleChange("pH", e.target.value)}
-                className={`h-8 w-[80px] text-sm ${getInputClass(
+                className={`h-6 text-xs w-[80px] ${getInputClass(
                   values.pH,
                   DEFAULT_VALUES.ph.min,
                   DEFAULT_VALUES.ph.max,
@@ -145,14 +146,14 @@ const AcidBase = ({ onData }: AcidBaseProps) => {
               />
             </div>
             <div>
-              <Label className="text-xs">pCO₂*</Label>
+              <Label className={labelClass}>pCO₂*</Label>
               <Input
                 onClick={(e) => e.stopPropagation()}
                 type="number"
                 placeholder={PLACEHOLDERS.pCO2}
                 value={values.pCO2}
                 onChange={(e) => handleChange("pCO2", e.target.value)}
-                className={`h-8 w-[65px] text-sm ${getInputClass(
+                className={`h-6 text-xs w-[65px] ${getInputClass(
                   values.pCO2,
                   DEFAULT_VALUES.pCO2.min,
                   DEFAULT_VALUES.pCO2.max,
@@ -160,14 +161,14 @@ const AcidBase = ({ onData }: AcidBaseProps) => {
               />
             </div>
             <div>
-              <Label className="text-xs">HCO₃*</Label>
+              <Label className={labelClass}>HCO₃*</Label>
               <Input
                 onClick={(e) => e.stopPropagation()}
                 type="number"
                 placeholder={PLACEHOLDERS.HCO3}
                 value={values.HCO3}
                 onChange={(e) => handleChange("HCO3", e.target.value)}
-                className={`h-8 w-[65px] text-sm ${getInputClass(
+                className={`h-6 text-xs w-[65px] ${getInputClass(
                   values.HCO3,
                   DEFAULT_VALUES.HCO3.min,
                   DEFAULT_VALUES.HCO3.max,
@@ -175,36 +176,36 @@ const AcidBase = ({ onData }: AcidBaseProps) => {
               />
             </div>
             <div>
-              <Label className="text-xs">Na⁺</Label>
+              <Label className={labelClass}>Na⁺</Label>
               <Input
                 onClick={(e) => e.stopPropagation()}
                 type="number"
                 placeholder={PLACEHOLDERS.na}
                 value={values.Na}
                 onChange={(e) => handleChange("Na", e.target.value)}
-                className="h-8 w-[75px] text-sm"
+                className="h-6 text-xs w-[75px]"
               />
             </div>
             <div>
-              <Label className="text-xs">Cl⁻</Label>
+              <Label className={labelClass}>Cl⁻</Label>
               <Input
                 onClick={(e) => e.stopPropagation()}
                 type="number"
                 placeholder={PLACEHOLDERS.cl}
                 value={values.Cl}
                 onChange={(e) => handleChange("Cl", e.target.value)}
-                className="h-8 w-[75px] text-sm"
+                className="h-6 text-xs w-[75px]"
               />
             </div>
             <div>
-              <Label className="text-xs">Albumin</Label>
+              <Label className={labelClass}>Albumin</Label>
               <Input
                 onClick={(e) => e.stopPropagation()}
                 type="number"
                 placeholder={PLACEHOLDERS.albumin}
                 value={values.Albumin}
                 onChange={(e) => handleChange("Albumin", e.target.value)}
-                className="h-8 w-[75px] text-sm"
+                className="h-6 text-xs w-[75px]"
               />
             </div>
           </div>
@@ -257,8 +258,8 @@ const AcidBase = ({ onData }: AcidBaseProps) => {
             </div>
           </div>
         </Popup>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

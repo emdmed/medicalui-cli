@@ -26,13 +26,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Plus,
   Check,
   X,
-  Activity,
+
   TrendingDown,
   AlertTriangle,
 } from "lucide-react";
@@ -245,7 +245,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
     setIsAddingReading(false);
   };
 
-  const labelClass = "text-xs text-muted-foreground";
+  const labelClass = "text-[11px] font-heading uppercase tracking-wider text-muted-foreground leading-none";
 
   const eligibilityBadge = (
     label: string,
@@ -269,11 +269,8 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
     <div className="w-full space-y-2">
       <div className="border border-border rounded-sm p-2" ref={containerRef}>
         {/* Header */}
-        <div className="flex items-center justify-between -mx-2 -mt-2 mb-2 px-2 py-1.5 bg-secondary rounded-t-sm">
-          <div className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            <span className="font-heading font-semibold text-sm">CKD Evaluator</span>
-          </div>
+        <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
+          <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">CKD Evaluator</span>
           <div className="flex items-center gap-1">
             {isNarrow && patientData.readings.length > 0 && latest && <ViewToggle view={view} onViewChange={setView} />}
             {!isAddingReading && (
@@ -361,7 +358,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
               <span className="text-lg font-heading font-bold tracking-tight">
                 {latest.gfrCategory}-{latest.albCategory}
               </span>
-              <span className="text-xs opacity-70">
+              <span className="text-xs text-muted-foreground">
                 eGFR {latest.egfr} · ACR {latest.acr} mg/g · {monitoring}×/yr
               </span>
               <div className="flex flex-wrap gap-1 ml-auto">
@@ -414,7 +411,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
           </div>
         )}
 
-        <Separator className="my-2" />
+        <div className="border-b border-border/30 my-2" />
 
         {/* Current Status + History side by side */}
         {latest ? (
@@ -525,7 +522,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                       {[...patientData.readings].reverse().map((r, i) => (
                         <tr
                           key={r.id}
-                          className={`border-b border-muted ${i % 2 === 1 ? "bg-muted/10" : ""}`}
+                          className={`border-b border-border/30 ${i % 2 === 1 ? "bg-muted/10" : ""}`}
                         >
                           <td className="py-1 pr-2 whitespace-nowrap">{r.date}</td>
                           <td className="py-1 px-1 text-end">{r.creatinine}</td>
@@ -544,7 +541,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
         ) : (
           <>
             {!latest && (
-              <div className="text-sm text-muted-foreground text-center py-4">
+              <div className="text-xs text-muted-foreground text-center py-2">
                 {patientData.age && patientData.sex
                   ? "No readings yet. Add the first reading."
                   : "Click above to set age and sex, then add a reading."}
@@ -556,7 +553,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
         {/* Add Reading — inline form */}
         {isAddingReading && (
           <>
-            <Separator className="my-2" />
+            <div className="border-b border-border/30 my-2" />
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">New reading</span>
@@ -587,7 +584,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                   <Input
                     value={newCreatinine}
                     onChange={(e) => setNewCreatinine(e.target.value)}
-                    className="text-end h-7"
+                    className="text-end h-6 text-xs"
                     placeholder="1.2"
                   />
                 </div>
@@ -596,7 +593,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                   <Input
                     value={newACR}
                     onChange={(e) => setNewACR(e.target.value)}
-                    className="text-end h-7"
+                    className="text-end h-6 text-xs"
                     placeholder="30"
                   />
                 </div>
@@ -606,7 +603,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
                     type="date"
                     value={newDate}
                     onChange={(e) => setNewDate(e.target.value)}
-                    className="h-7"
+                    className="h-6 text-xs"
                   />
                 </div>
               </div>

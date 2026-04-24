@@ -12,7 +12,6 @@
  *   Displays BMI category badge: Underweight | Normal | Overweight | Obese.
  */
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +30,7 @@ const BMICalculator = () => {
   const [tempHeightM, setTempHeightM] = useState("");
   const [isMetric, setIsMetric] = useState(false);
 
-  const labelClass = "cmb-1 text-sm opacity-50";
+  const labelClass = "text-[11px] font-heading uppercase tracking-wider text-muted-foreground leading-none";
 
   const currentBMI = calculateBMI(
     weight,
@@ -131,135 +130,130 @@ const BMICalculator = () => {
 
   if (isEditMode) {
     return (
-      <div className="w-fit mx-auto">
-        <Card className="shadow-lg border p-0">
-          <CardContent className="p-2">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <span>BMI</span>
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={saveChanges}
-                  disabled={!isValidEdit()}
-                >
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={cancelEdit}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-
-            <div className={`flex gap-4 ${isMetric ? "" : "flex-col"} `}>
-              <div>
-                <label className={labelClass}>Weight ({getWeightUnit()})</label>
-                <Input
-                  value={tempWeight}
-                  onChange={(e) => setTempWeight(e.target.value)}
-                  className="text-end w-[60px]"
-                  placeholder="Weight"
-                  min="0"
-                  step={isMetric ? "0.1" : "1"}
-                />
-              </div>
-
-              {isMetric ? (
-                <div>
-                  <label className={labelClass}>Height (m)</label>
-                  <Input
-                    value={tempHeightM}
-                    onChange={(e) => setTempHeightM(e.target.value)}
-                    className="text-end w-[60px]"
-                    placeholder="Height"
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-              ) : (
-                <div className="gap-3">
-                  <label className={labelClass}>Height (ft)</label>
-                  <div className="gap-2 flex justify-between items-center">
-                    <div>
-                      <label className={labelClass}>Feet</label>
-                      <Input
-                        value={tempHeightFt}
-                        onChange={(e) => setTempHeightFt(e.target.value)}
-                        className="text-end w-[50px]"
-                        placeholder="Ft"
-                        min="0"
-                        step="1"
-                      />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Inches</label>
-                      <Input
-                        value={tempHeightIn}
-                        onChange={(e) => setTempHeightIn(e.target.value)}
-                        className="text-end w-[50px]"
-                        placeholder="In"
-                        min="0"
-                        max="11"
-                        step="1"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center justify-start gap-1 py-2 opacity-50">
-              <span className={`text-xs ${!isMetric ? "font-semibold" : ""}`}>
-                Imperial
-              </span>
+      <div className="w-fit">
+        <div className="border border-border rounded-sm p-2">
+          <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
+            <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">BMI</span>
+            <div className="flex gap-0.5">
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={toggleUnits}
-                className="h-5 w-8 p-0 hover:bg-transparent"
+                size="icon"
+                className="h-5 w-5"
+                onClick={saveChanges}
+                disabled={!isValidEdit()}
               >
-                {isMetric ? (
-                  <ToggleRight className="h-4 w-4" />
-                ) : (
-                  <ToggleLeft className="h-4 w-4" />
-                )}
+                <Check className="h-3 w-3" />
               </Button>
-              <span className={`text-xs ${isMetric ? "font-semibold" : ""}`}>
-                Metric
-              </span>
+              <Button size="icon" variant="ghost" className="h-5 w-5" onClick={cancelEdit}>
+                <X className="h-3 w-3" />
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className={`flex gap-4 ${isMetric ? "" : "flex-col"} `}>
+            <div>
+              <label className={labelClass}>Weight ({getWeightUnit()})</label>
+              <Input
+                value={tempWeight}
+                onChange={(e) => setTempWeight(e.target.value)}
+                className="text-end w-[60px] h-6 text-xs"
+                placeholder="Weight"
+                min="0"
+                step={isMetric ? "0.1" : "1"}
+              />
+            </div>
+
+            {isMetric ? (
+              <div>
+                <label className={labelClass}>Height (m)</label>
+                <Input
+                  value={tempHeightM}
+                  onChange={(e) => setTempHeightM(e.target.value)}
+                  className="text-end w-[60px] h-6 text-xs"
+                  placeholder="Height"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+            ) : (
+              <div className="gap-3">
+                <label className={labelClass}>Height (ft)</label>
+                <div className="gap-2 flex justify-between items-center">
+                  <div>
+                    <label className={labelClass}>Feet</label>
+                    <Input
+                      value={tempHeightFt}
+                      onChange={(e) => setTempHeightFt(e.target.value)}
+                      className="text-end w-[50px] h-6 text-xs"
+                      placeholder="Ft"
+                      min="0"
+                      step="1"
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Inches</label>
+                    <Input
+                      value={tempHeightIn}
+                      onChange={(e) => setTempHeightIn(e.target.value)}
+                      className="text-end w-[50px] h-6 text-xs"
+                      placeholder="In"
+                      min="0"
+                      max="11"
+                      step="1"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center justify-start gap-1 py-2 text-muted-foreground">
+            <span className={`text-xs ${!isMetric ? "font-semibold" : ""}`}>
+              Imperial
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleUnits}
+              className="h-5 w-8 p-0 hover:bg-transparent"
+            >
+              {isMetric ? (
+                <ToggleRight className="h-4 w-4" />
+              ) : (
+                <ToggleLeft className="h-4 w-4" />
+              )}
+            </Button>
+            <span className={`text-xs ${isMetric ? "font-semibold" : ""}`}>
+              Metric
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-fit mx-auto">
-      <Card
+    <div className="w-fit">
+      <div
         onClick={enterEditMode}
-        className="cursor-pointer hover:shadow-md transition-shadow duration-200 p-1"
+        className="border border-border rounded-sm p-2 cursor-pointer hover:bg-muted/30 transition-colors"
       >
-        <CardContent className="p-2">
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold">{currentBMI || "--"}</div>
+        <div className="flex items-center gap-2">
+          <div className="text-2xl font-bold">{currentBMI || "--"}</div>
 
-            <Badge className="text-xs font-medium">
-              {currentCategory}
-            </Badge>
+          <Badge className="text-xs font-medium">
+            {currentCategory}
+          </Badge>
+        </div>
+        <div className="text-xs space-y-1">
+          <div className="flex items-center justify-center gap-1">
+            <User className="h-3 w-3" />
+            <span>
+              {weight}
+              {getWeightUnit()} • {getHeightDisplay()}
+            </span>
           </div>
-          <div className="text-xs space-y-1">
-            <div className="flex items-center justify-center gap-1">
-              <User className="h-3 w-3" />
-              <span>
-                {weight}
-                {getWeightUnit()} • {getHeightDisplay()}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

@@ -5,7 +5,6 @@
  * @behavior  Click card to enter edit mode → select criteria → save to see score + recommendation.
  */
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Activity } from "lucide-react";
@@ -20,11 +19,11 @@ import type { HEARTInputs } from "../types/interfaces";
 const getSeverityColor = (severity: string): string => {
   switch (severity) {
     case "low":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      return "severity-normal";
     case "moderate":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      return "severity-warning";
     case "high":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      return "severity-critical";
     default:
       return "";
   }
@@ -99,73 +98,69 @@ const HEARTScoreCalculator = () => {
   if (isEditMode) {
     return (
       <div className="w-full">
-        <Card className="shadow-lg border p-0">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">HEART Score</span>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" onClick={saveChanges}>
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={cancelEdit}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
+        <div className="border border-border rounded-sm p-2">
+          <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
+            <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">HEART Score</span>
+            <div className="flex gap-0.5">
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={saveChanges}>
+                <Check className="h-3 w-3" />
+              </Button>
+              <Button size="icon" variant="ghost" className="h-5 w-5" onClick={cancelEdit}>
+                <X className="h-3 w-3" />
+              </Button>
             </div>
+          </div>
 
-            <div className="space-y-3">
-              {CRITERIA.map((criterion) => (
-                <div key={criterion.key}>
-                  <div className="text-sm font-medium mb-1">{criterion.label}</div>
-                  <div className="flex flex-col gap-1">
-                    {criterion.options.map((label, value) => (
-                      <Button
-                        key={value}
-                        variant={temp[criterion.key] === value ? "default" : "outline"}
-                        size="sm"
-                        className="h-7 text-xs justify-start px-2"
-                        onClick={() =>
-                          setTemp((prev) => ({
-                            ...prev,
-                            [criterion.key]: value as 0 | 1 | 2,
-                          }))
-                        }
-                      >
-                        <span className="font-mono mr-1.5">{value}</span> {label}
-                      </Button>
-                    ))}
-                  </div>
+          <div className="space-y-2">
+            {CRITERIA.map((criterion) => (
+              <div key={criterion.key}>
+                <div className="text-[11px] font-heading uppercase tracking-wider text-muted-foreground leading-none mb-1">{criterion.label}</div>
+                <div className="flex flex-col gap-1">
+                  {criterion.options.map((label, value) => (
+                    <Button
+                      key={value}
+                      variant={temp[criterion.key] === value ? "default" : "outline"}
+                      size="sm"
+                      className="h-6 text-xs justify-start px-2"
+                      onClick={() =>
+                        setTemp((prev) => ({
+                          ...prev,
+                          [criterion.key]: value as 0 | 1 | 2,
+                        }))
+                      }
+                    >
+                      <span className="font-mono mr-1.5">{value}</span> {label}
+                    </Button>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="w-full">
-      <Card
+      <div
         onClick={enterEditMode}
-        className="cursor-pointer hover:shadow-md transition-shadow duration-200 p-1"
+        className="border border-border rounded-sm p-2 cursor-pointer hover:bg-muted/30 transition-colors"
       >
-        <CardContent className="p-2">
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold">{score}/10</div>
-            <Badge className={`text-xs font-medium ${getSeverityColor(severity)}`}>
-              {category}
-            </Badge>
+        <div className="flex items-center gap-2">
+          <div className="text-2xl font-bold">{score}/10</div>
+          <Badge className={`text-xs font-medium ${getSeverityColor(severity)}`}>
+            {category}
+          </Badge>
+        </div>
+        <div className="text-xs space-y-1">
+          <div className="flex items-center gap-1">
+            <Activity className="h-3 w-3" />
+            <span>HEART Score</span>
           </div>
-          <div className="text-xs space-y-1">
-            <div className="flex items-center gap-1">
-              <Activity className="h-3 w-3" />
-              <span>HEART Score</span>
-            </div>
-            <div className="opacity-60">{action}</div>
-          </div>
-        </CardContent>
-      </Card>
+          <div className="text-muted-foreground">{action}</div>
+        </div>
+      </div>
     </div>
   );
 };

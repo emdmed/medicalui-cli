@@ -12,7 +12,6 @@
  *   FiO2 presets dropdown: 21% (room air), 28%, 35%, 40%, 50%, 60%, 80%, 100%.
  */
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,13 +37,13 @@ const FIO2_PRESETS = [
 const getSeverityColor = (severity: string): string => {
   switch (severity) {
     case "normal":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      return "severity-normal";
     case "mild":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      return "severity-watch";
     case "moderate":
-      return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+      return "severity-warning";
     case "severe":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      return "severity-critical";
     default:
       return "";
   }
@@ -57,7 +56,7 @@ const PaFiCalculator = () => {
   const [tempPaO2, setTempPaO2] = useState("");
   const [tempFiO2, setTempFiO2] = useState("");
 
-  const labelClass = "mb-1 text-sm opacity-50";
+  const labelClass = "text-[11px] font-heading uppercase tracking-wider text-muted-foreground leading-none";
 
   const currentPaFi = calculatePaFi(paO2, fiO2);
   const currentClassification = getPaFiClassification(currentPaFi);
@@ -95,99 +94,94 @@ const PaFiCalculator = () => {
 
   if (isEditMode) {
     return (
-      <div className="w-fit mx-auto">
-        <Card className="shadow-lg border p-0">
-          <CardContent className="p-2">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <span>PaFi</span>
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={saveChanges}
-                  disabled={!isValidEdit()}
-                >
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={cancelEdit}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
+      <div className="w-fit">
+        <div className="border border-border rounded-sm p-2">
+          <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
+            <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">PaFi</span>
+            <div className="flex gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5"
+                onClick={saveChanges}
+                disabled={!isValidEdit()}
+              >
+                <Check className="h-3 w-3" />
+              </Button>
+              <Button size="icon" variant="ghost" className="h-5 w-5" onClick={cancelEdit}>
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div>
+              <Label className={labelClass}>PaO2 (mmHg)</Label>
+              <Input
+                value={tempPaO2}
+                onChange={(e) => setTempPaO2(e.target.value)}
+                className="text-end w-[70px] h-6 text-xs"
+                placeholder="PaO2"
+                min="0"
+                step="1"
+              />
             </div>
 
-            <div className="flex gap-4">
-              <div>
-                <Label className={labelClass}>PaO2 (mmHg)</Label>
-                <Input
-                  value={tempPaO2}
-                  onChange={(e) => setTempPaO2(e.target.value)}
-                  className="text-end w-[70px]"
-                  placeholder="PaO2"
-                  min="0"
-                  step="1"
-                />
-              </div>
-
-              <div>
-                <Label className={labelClass}>FiO2 (%)</Label>
-                <Input
-                  value={tempFiO2}
-                  onChange={(e) => setTempFiO2(e.target.value)}
-                  className="text-end w-[70px]"
-                  placeholder="FiO2"
-                  min="21"
-                  max="100"
-                  step="1"
-                />
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {FIO2_PRESETS.map((preset) => (
-                    <Button
-                      key={preset.value}
-                      variant={tempFiO2 === preset.value ? "default" : "outline"}
-                      size="sm"
-                      className="h-5 text-[10px] px-1"
-                      onClick={() => setTempFiO2(preset.value)}
-                    >
-                      {preset.value}%
-                    </Button>
-                  ))}
-                </div>
+            <div>
+              <Label className={labelClass}>FiO2 (%)</Label>
+              <Input
+                value={tempFiO2}
+                onChange={(e) => setTempFiO2(e.target.value)}
+                className="text-end w-[70px] h-6 text-xs"
+                placeholder="FiO2"
+                min="21"
+                max="100"
+                step="1"
+              />
+              <div className="flex flex-wrap gap-1 mt-1">
+                {FIO2_PRESETS.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant={tempFiO2 === preset.value ? "default" : "outline"}
+                    size="sm"
+                    className="h-5 text-[10px] px-1"
+                    onClick={() => setTempFiO2(preset.value)}
+                  >
+                    {preset.value}%
+                  </Button>
+                ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-fit mx-auto">
-      <Card
+    <div className="w-fit">
+      <div
         onClick={enterEditMode}
-        className="cursor-pointer hover:shadow-md transition-shadow duration-200 p-1"
+        className="border border-border rounded-sm p-2 cursor-pointer hover:bg-muted/30 transition-colors"
       >
-        <CardContent className="p-2">
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold">{currentPaFi || "--"}</div>
+        <div className="flex items-center gap-2">
+          <div className="text-2xl font-bold">{currentPaFi || "--"}</div>
 
-            <Badge
-              className={`text-xs font-medium ${getSeverityColor(currentSeverity)}`}
-            >
-              {currentClassification}
-            </Badge>
+          <Badge
+            className={`text-xs font-medium ${getSeverityColor(currentSeverity)}`}
+          >
+            {currentClassification}
+          </Badge>
+        </div>
+        <div className="text-xs space-y-1">
+          <div className="flex items-center justify-center gap-1">
+            <Wind className="h-3 w-3" />
+            <span>
+              PaO2 {paO2} mmHg • FiO2 {fiO2}%
+            </span>
           </div>
-          <div className="text-xs space-y-1">
-            <div className="flex items-center justify-center gap-1">
-              <Wind className="h-3 w-3" />
-              <span>
-                PaO2 {paO2} mmHg • FiO2 {fiO2}%
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

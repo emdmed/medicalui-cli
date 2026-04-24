@@ -21,17 +21,14 @@
  *   All results render inline below inputs — no absolute positioning.
  */
 import React, { useState, useRef, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
   Plus,
   Check,
   X,
-  Activity,
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
@@ -58,11 +55,11 @@ import type { DKAPatientData, DKAReading, DKAProps } from "./types/dka";
 const severityColor = (level: string): string => {
   switch (level) {
     case "normal":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      return "severity-normal";
     case "warning":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      return "severity-warning";
     case "critical":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      return "severity-critical";
     default:
       return "";
   }
@@ -70,7 +67,7 @@ const severityColor = (level: string): string => {
 
 const targetBadge = (onTarget: boolean, label: string) => (
   <Badge
-    className={`text-[10px] ${onTarget ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"}`}
+    className={`text-[10px] ${onTarget ? "severity-normal" : "severity-critical"}`}
   >
     {label}
   </Badge>
@@ -261,449 +258,445 @@ const DKAMonitor = ({ data, onData }: DKAProps) => {
 
   const glucoseUnitLabel =
     patientData.glucoseUnit === "mgdl" ? "mg/dL" : "mmol/L";
-  const labelClass = "text-xs opacity-60";
+  const labelClass = "text-[11px] font-heading uppercase tracking-wider text-muted-foreground leading-none";
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-2">
-      <Card className="overflow-visible">
-        <CardContent className="p-3">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              <span className="font-semibold text-sm">DKA Monitor</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span
-                className={`text-[10px] ${patientData.glucoseUnit === "mgdl" ? "font-semibold" : "opacity-50"}`}
-              >
-                mg/dL
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleUnit}
-                className="h-5 w-8 p-0 hover:bg-transparent"
-              >
-                {patientData.glucoseUnit === "mmol" ? (
-                  <ToggleRight className="h-4 w-4" />
-                ) : (
-                  <ToggleLeft className="h-4 w-4" />
-                )}
-              </Button>
-              <span
-                className={`text-[10px] ${patientData.glucoseUnit === "mmol" ? "font-semibold" : "opacity-50"}`}
-              >
-                mmol/L
-              </span>
-            </div>
-          </div>
-
-          {/* Weight */}
-          {isEditingHeader ? (
-            <div className="flex items-center gap-2 mb-2">
-              <Label className={labelClass}>Weight (kg)</Label>
-              <Input
-                value={tempWeight}
-                onChange={(e) => setTempWeight(e.target.value)}
-                className="text-end w-[70px] h-7"
-                placeholder="kg"
-              />
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={saveWeight}>
-                <Check className="h-3 w-3" />
-              </Button>
+    <div className="w-full space-y-2">
+      <div className="border border-border rounded-sm p-2">
+        {/* Header */}
+        <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
+          <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">DKA Monitor</span>
+          <div className="flex items-center gap-1">
+            <span
+              className={`text-[10px] ${patientData.glucoseUnit === "mgdl" ? "font-semibold" : "text-muted-foreground"}`}
+            >
+              mg/dL
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleUnit}
+              className="h-5 w-8 p-0 hover:bg-transparent"
+            >
+              {patientData.glucoseUnit === "mmol" ? (
+                <ToggleRight className="h-4 w-4" />
+              ) : (
+                <ToggleLeft className="h-4 w-4" />
+              )}
+            </Button>
+            <span
+              className={`text-[10px] ${patientData.glucoseUnit === "mmol" ? "font-semibold" : "text-muted-foreground"}`}
+            >
+              mmol/L
+            </span>
+            {!isAddingReading && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6"
-                onClick={() => setIsEditingHeader(false)}
+                onClick={() => setIsAddingReading(true)}
               >
-                <X className="h-3 w-3" />
+                <Plus className="h-3.5 w-3.5" />
               </Button>
-            </div>
-          ) : (
-            <div
-              className="text-xs opacity-60 mb-2 cursor-pointer hover:opacity-100"
-              onClick={() => {
-                setTempWeight(patientData.weight);
-                setIsEditingHeader(true);
-              }}
-            >
-              Weight: {patientData.weight || "—"} kg
-            </div>
-          )}
+            )}
+          </div>
+        </div>
 
-          <Separator className="my-2" />
-
-          {/* Current Status */}
-          {latest ? (
-            <div className="space-y-2">
-              <div className="text-xs font-medium opacity-70">
-                Latest reading
-              </div>
-              <div className="flex flex-wrap gap-1">
-                <Badge variant="outline" className="text-[10px]">
-                  Glucose: {latest.glucose} {glucoseUnitLabel}
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  Ketones: {latest.ketones} mmol/L
-                </Badge>
-                <Badge
-                  className={`text-[10px] ${severityColor(getPotassiumSeverity(latest.potassium))}`}
-                >
-                  K+: {latest.potassium} mEq/L (
-                  {classifyPotassium(latest.potassium)})
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  GCS: {latest.gcs} ({classifyGCS(latest.gcs)})
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  pH: {latest.pH}
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  HCO3: {latest.bicarbonate} mEq/L
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  Insulin: {latest.insulinRate} U/hr
-                </Badge>
-              </div>
-
-              {/* GCS Warning */}
-              {previous && isGCSDecreasing(latest.gcs, previous.gcs) && (
-                <Badge className="text-[10px] bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                  ⚠ GCS drop ≥2 — consider cerebral edema
-                </Badge>
-              )}
-
-              {/* Rate badges */}
-              {hours && (
-                <>
-                  <div className="text-xs font-medium opacity-70 mt-2">
-                    Rates
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {glucoseRate &&
-                      targetBadge(
-                        isGlucoseOnTarget(glucoseRate, patientData.glucoseUnit),
-                        `Glucose: ${glucoseRate} ${glucoseUnitLabel}/hr`,
-                      )}
-                    {ketoneRate &&
-                      targetBadge(
-                        isKetoneOnTarget(ketoneRate),
-                        `Ketones: ${ketoneRate} mmol/L/hr`,
-                      )}
-                    {bicarbRate &&
-                      targetBadge(
-                        isBicarbonateOnTarget(bicarbRate),
-                        `HCO3: +${bicarbRate} mmol/L/hr`,
-                      )}
-                    {urineRate &&
-                      targetBadge(
-                        isUrineOutputOnTarget(urineRate),
-                        `Urine: ${urineRate} mL/kg/hr`,
-                      )}
-                  </div>
-                </>
-              )}
-
-              {/* Insulin suggestion */}
-              {insulinSuggestion && (
-                <div className="text-[10px] opacity-70 italic">
-                  {insulinSuggestion}
-                </div>
-              )}
-
-              {/* Resolution */}
-              {resolution && (
-                <>
-                  <div className="text-xs font-medium opacity-70 mt-2">
-                    Resolution criteria
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {targetBadge(
-                      resolution.criteria.glucose,
-                      `Glucose <${patientData.glucoseUnit === "mgdl" ? "200" : "11.1"}`,
-                    )}
-                    {targetBadge(
-                      resolution.criteria.ketones,
-                      "Ketones <0.6",
-                    )}
-                    {targetBadge(
-                      resolution.criteria.bicarbonate,
-                      "HCO3 ≥15",
-                    )}
-                    {targetBadge(resolution.criteria.pH, "pH >7.30")}
-                  </div>
-                  {resolution.resolved && (
-                    <Badge className="text-[10px] bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 mt-1">
-                      DKA Resolved
-                    </Badge>
-                  )}
-                </>
-              )}
-
-              {/* Blood Gas Analysis */}
-              <Popup visible={!!abgResult}>
-                {abgResult && (
-                  <div className="w-full space-y-1 mt-1">
-                    <div className="text-xs font-medium opacity-70">
-                      Blood Gas Analysis
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {abgResult.allDisorders.map((d: string, i: number) => (
-                        <Badge
-                          key={i}
-                          className="text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                        >
-                          {d}
-                        </Badge>
-                      ))}
-                      {abgResult.compensation !== "N/A" && (
-                        <Badge
-                          className={`text-[10px] ${
-                            abgResult.compensation === "Compensated"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          }`}
-                        >
-                          {abgResult.compensation}
-                        </Badge>
-                      )}
-                      {abgResult.anionGap && (
-                        <Badge
-                          className={`text-[10px] ${
-                            abgResult.agStatus === "High"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          }`}
-                        >
-                          AG: {abgResult.anionGap}{" "}
-                          {abgResult.correctedAG ? "(corrected)" : ""}
-                        </Badge>
-                      )}
-                      {abgResult.deltaRatioInterpretation && (
-                        <Badge className="text-[10px] bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                          ΔΔ {abgResult.deltaRatio}: {abgResult.deltaRatioInterpretation}
-                        </Badge>
-                      )}
-                    </div>
-                    {abgResult.hhConsistency && !abgResult.hhConsistency.isCoherent && (
-                      <div className="text-[10px] text-red-600 dark:text-red-400 italic">
-                        ⚠ {abgResult.hhConsistency.warning}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Popup>
-            </div>
-          ) : (
-            <div className="text-xs opacity-50 text-center py-4">
-              No readings yet. Add the first hourly reading.
-            </div>
-          )}
-
-          <Separator className="my-2" />
-
-          {/* Add Reading */}
-          {isAddingReading ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">New reading</span>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={addReading}
-                    disabled={!validateReading()}
-                  >
-                    <Check className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() => setIsAddingReading(false)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label className={labelClass}>
-                    Glucose ({glucoseUnitLabel})
-                  </Label>
-                  <Input
-                    value={newReading.glucose}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, glucose: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>Ketones (mmol/L)</Label>
-                  <Input
-                    value={newReading.ketones}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, ketones: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>HCO3 (mEq/L)</Label>
-                  <Input
-                    value={newReading.bicarbonate}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, bicarbonate: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>pH</Label>
-                  <Input
-                    value={newReading.pH}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, pH: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="7.00"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>K+ (mEq/L)</Label>
-                  <Input
-                    value={newReading.potassium}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, potassium: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>Insulin (U/hr)</Label>
-                  <Input
-                    value={newReading.insulinRate}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, insulinRate: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>GCS (3-15)</Label>
-                  <Input
-                    value={newReading.gcs}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, gcs: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="15"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>Urine (mL)</Label>
-                  <Input
-                    value={newReading.urineOutput}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, urineOutput: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>pCO2 (mmHg)</Label>
-                  <Input
-                    value={newReading.pCO2}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, pCO2: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="40"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>Na+ (mEq/L)</Label>
-                  <Input
-                    value={newReading.sodium}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, sodium: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="140"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>Cl- (mEq/L)</Label>
-                  <Input
-                    value={newReading.chloride}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, chloride: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="100"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>Albumin (g/dL)</Label>
-                  <Input
-                    value={newReading.albumin}
-                    onChange={(e) => setNewReading(prev => ({ ...prev, albumin: e.target.value }))}
-                    className="text-end h-7"
-                    placeholder="4.0"
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full h-7 text-xs"
-              onClick={() => setIsAddingReading(true)}
-            >
-              <Plus className="h-3 w-3 mr-1" /> Add reading
+        {/* Weight */}
+        {isEditingHeader ? (
+          <div className="flex items-center gap-2 mb-2">
+            <Label className={labelClass}>Weight (kg)</Label>
+            <Input
+              value={tempWeight}
+              onChange={(e) => setTempWeight(e.target.value)}
+              className="text-end w-[70px] h-6 text-xs"
+              placeholder="kg"
+            />
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={saveWeight}>
+              <Check className="h-3 w-3" />
             </Button>
-          )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setIsEditingHeader(false)}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        ) : (
+          <div
+            className="text-xs text-muted-foreground mb-2 cursor-pointer hover:text-foreground"
+            onClick={() => {
+              setTempWeight(patientData.weight);
+              setIsEditingHeader(true);
+            }}
+          >
+            Weight: {patientData.weight || "—"} kg
+          </div>
+        )}
 
-          {/* Reading history table */}
-          {patientData.readings.length > 0 && (
-            <>
-              <Separator className="my-2" />
-              <div className="text-xs font-medium opacity-70 mb-1">
-                History ({patientData.readings.length} readings)
+        <div className="border-b border-border/30 my-2" />
+
+        {/* Current Status */}
+        {latest ? (
+          <div className="space-y-2">
+            <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">
+              Latest reading
+            </div>
+            <div className="flex flex-wrap gap-1">
+              <Badge variant="outline" className="text-[10px]">
+                Glucose: {latest.glucose} {glucoseUnitLabel}
+              </Badge>
+              <Badge variant="outline" className="text-[10px]">
+                Ketones: {latest.ketones} mmol/L
+              </Badge>
+              <Badge
+                className={`text-[10px] ${severityColor(getPotassiumSeverity(latest.potassium))}`}
+              >
+                K+: {latest.potassium} mEq/L (
+                {classifyPotassium(latest.potassium)})
+              </Badge>
+              <Badge variant="outline" className="text-[10px]">
+                GCS: {latest.gcs} ({classifyGCS(latest.gcs)})
+              </Badge>
+              <Badge variant="outline" className="text-[10px]">
+                pH: {latest.pH}
+              </Badge>
+              <Badge variant="outline" className="text-[10px]">
+                HCO3: {latest.bicarbonate} mEq/L
+              </Badge>
+              <Badge variant="outline" className="text-[10px]">
+                Insulin: {latest.insulinRate} U/hr
+              </Badge>
+            </div>
+
+            {/* GCS Warning */}
+            {previous && isGCSDecreasing(latest.gcs, previous.gcs) && (
+              <Badge className="text-[10px] severity-critical">
+                ⚠ GCS drop ≥2 — consider cerebral edema
+              </Badge>
+            )}
+
+            {/* Rate badges */}
+            {hours && (
+              <>
+                <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mt-2">
+                  Rates
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {glucoseRate &&
+                    targetBadge(
+                      isGlucoseOnTarget(glucoseRate, patientData.glucoseUnit),
+                      `Glucose: ${glucoseRate} ${glucoseUnitLabel}/hr`,
+                    )}
+                  {ketoneRate &&
+                    targetBadge(
+                      isKetoneOnTarget(ketoneRate),
+                      `Ketones: ${ketoneRate} mmol/L/hr`,
+                    )}
+                  {bicarbRate &&
+                    targetBadge(
+                      isBicarbonateOnTarget(bicarbRate),
+                      `HCO3: +${bicarbRate} mmol/L/hr`,
+                    )}
+                  {urineRate &&
+                    targetBadge(
+                      isUrineOutputOnTarget(urineRate),
+                      `Urine: ${urineRate} mL/kg/hr`,
+                    )}
+                </div>
+              </>
+            )}
+
+            {/* Insulin suggestion */}
+            {insulinSuggestion && (
+              <div className="text-[10px] text-muted-foreground italic">
+                {insulinSuggestion}
               </div>
-              <div className="overflow-x-auto max-h-48 overflow-y-auto">
-                <table className="w-full text-[10px] border-collapse">
-                  <thead>
-                    <tr className="border-b text-left opacity-70">
-                      <th className="py-1 pr-2 font-medium sticky top-0 bg-background">Time</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">Glu</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">Ket</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">pH</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">HCO3</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">pCO2</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">K+</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">GCS</th>
-                      <th className="py-1 px-1 font-medium sticky top-0 bg-background text-end">Ins</th>
-                      <th className="py-1 pl-1 font-medium sticky top-0 bg-background text-end">UO</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...patientData.readings].reverse().map((r) => (
-                      <tr key={r.id} className="border-b border-muted opacity-70 hover:opacity-100">
-                        <td className="py-1 pr-2 whitespace-nowrap">
-                          {new Date(r.timestamp * 1000).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </td>
-                        <td className="py-1 px-1 text-end">{r.glucose || "—"}</td>
-                        <td className="py-1 px-1 text-end">{r.ketones || "—"}</td>
-                        <td className="py-1 px-1 text-end">{r.pH || "—"}</td>
-                        <td className="py-1 px-1 text-end">{r.bicarbonate || "—"}</td>
-                        <td className="py-1 px-1 text-end">{r.pCO2 || "—"}</td>
-                        <td className="py-1 px-1 text-end">{r.potassium || "—"}</td>
-                        <td className="py-1 px-1 text-end">{r.gcs || "—"}</td>
-                        <td className="py-1 px-1 text-end">{r.insulinRate || "—"}</td>
-                        <td className="py-1 pl-1 text-end">{r.urineOutput || "—"}</td>
-                      </tr>
+            )}
+
+            {/* Resolution */}
+            {resolution && (
+              <>
+                <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mt-2">
+                  Resolution criteria
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {targetBadge(
+                    resolution.criteria.glucose,
+                    `Glucose <${patientData.glucoseUnit === "mgdl" ? "200" : "11.1"}`,
+                  )}
+                  {targetBadge(
+                    resolution.criteria.ketones,
+                    "Ketones <0.6",
+                  )}
+                  {targetBadge(
+                    resolution.criteria.bicarbonate,
+                    "HCO3 ≥15",
+                  )}
+                  {targetBadge(resolution.criteria.pH, "pH >7.30")}
+                </div>
+                {resolution.resolved && (
+                  <Badge className="text-[10px] severity-normal mt-1">
+                    DKA Resolved
+                  </Badge>
+                )}
+              </>
+            )}
+
+            {/* Blood Gas Analysis */}
+            <Popup visible={!!abgResult}>
+              {abgResult && (
+                <div className="w-full space-y-1 mt-1">
+                  <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">
+                    Blood Gas Analysis
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {abgResult.allDisorders.map((d: string, i: number) => (
+                      <Badge
+                        key={i}
+                        className="text-[10px] severity-watch"
+                      >
+                        {d}
+                      </Badge>
                     ))}
-                  </tbody>
-                </table>
+                    {abgResult.compensation !== "N/A" && (
+                      <Badge
+                        className={`text-[10px] ${
+                          abgResult.compensation === "Compensated"
+                            ? "severity-normal"
+                            : "severity-warning"
+                        }`}
+                      >
+                        {abgResult.compensation}
+                      </Badge>
+                    )}
+                    {abgResult.anionGap && (
+                      <Badge
+                        className={`text-[10px] ${
+                          abgResult.agStatus === "High"
+                            ? "severity-critical"
+                            : "severity-normal"
+                        }`}
+                      >
+                        AG: {abgResult.anionGap}{" "}
+                        {abgResult.correctedAG ? "(corrected)" : ""}
+                      </Badge>
+                    )}
+                    {abgResult.deltaRatioInterpretation && (
+                      <Badge className="text-[10px] severity-watch">
+                        ΔΔ {abgResult.deltaRatio}: {abgResult.deltaRatioInterpretation}
+                      </Badge>
+                    )}
+                  </div>
+                  {abgResult.hhConsistency && !abgResult.hhConsistency.isCoherent && (
+                    <div className="text-[10px] severity-critical-text italic">
+                      ⚠ {abgResult.hhConsistency.warning}
+                    </div>
+                  )}
+                </div>
+              )}
+            </Popup>
+          </div>
+        ) : (
+          <div className="text-xs text-muted-foreground text-center py-2">
+            No readings yet. Add the first hourly reading.
+          </div>
+        )}
+
+        <div className="border-b border-border/30 my-2" />
+
+        {/* Add Reading */}
+        {isAddingReading ? (
+          <div className="border border-border rounded-sm p-2">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">New reading</h3>
+              <div className="flex gap-0.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5"
+                  onClick={addReading}
+                  disabled={!validateReading()}
+                >
+                  <Check className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5"
+                  onClick={() => setIsAddingReading(false)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+            </div>
+
+            <div className="grid grid-cols-2 gap-1.5">
+              <div>
+                <Label className={labelClass}>
+                  Glucose ({glucoseUnitLabel})
+                </Label>
+                <Input
+                  value={newReading.glucose}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, glucose: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>Ketones (mmol/L)</Label>
+                <Input
+                  value={newReading.ketones}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, ketones: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>HCO3 (mEq/L)</Label>
+                <Input
+                  value={newReading.bicarbonate}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, bicarbonate: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>pH</Label>
+                <Input
+                  value={newReading.pH}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, pH: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="7.00"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>K+ (mEq/L)</Label>
+                <Input
+                  value={newReading.potassium}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, potassium: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>Insulin (U/hr)</Label>
+                <Input
+                  value={newReading.insulinRate}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, insulinRate: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>GCS (3-15)</Label>
+                <Input
+                  value={newReading.gcs}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, gcs: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="15"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>Urine (mL)</Label>
+                <Input
+                  value={newReading.urineOutput}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, urineOutput: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>pCO2 (mmHg)</Label>
+                <Input
+                  value={newReading.pCO2}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, pCO2: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="40"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>Na+ (mEq/L)</Label>
+                <Input
+                  value={newReading.sodium}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, sodium: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="140"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>Cl- (mEq/L)</Label>
+                <Input
+                  value={newReading.chloride}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, chloride: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="100"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>Albumin (g/dL)</Label>
+                <Input
+                  value={newReading.albumin}
+                  onChange={(e) => setNewReading(prev => ({ ...prev, albumin: e.target.value }))}
+                  className="text-end h-6 text-xs"
+                  placeholder="4.0"
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Reading history table */}
+        {patientData.readings.length > 0 && (
+          <>
+            <div className="border-b border-border/30 my-2" />
+            <div className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground mb-1">
+              History ({patientData.readings.length} readings)
+            </div>
+            <div className="overflow-x-auto max-h-48 overflow-y-auto">
+              <table className="w-full text-[10px] border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="p-1 text-left font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background">Time</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">Glu</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">Ket</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">pH</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">HCO3</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">pCO2</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">K+</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">GCS</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">Ins</th>
+                    <th className="p-1 font-heading font-medium uppercase tracking-wider text-muted-foreground text-[11px] sticky top-0 bg-background text-end">UO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...patientData.readings].reverse().map((r, i) => (
+                    <tr key={r.id} className={`border-b border-border/30 ${i % 2 === 1 ? "bg-muted/10" : ""}`}>
+                      <td className="p-1 whitespace-nowrap text-muted-foreground text-[11px]">
+                        {new Date(r.timestamp * 1000).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                      <td className="p-1 text-end">{r.glucose || "—"}</td>
+                      <td className="p-1 text-end">{r.ketones || "—"}</td>
+                      <td className="p-1 text-end">{r.pH || "—"}</td>
+                      <td className="p-1 text-end">{r.bicarbonate || "—"}</td>
+                      <td className="p-1 text-end">{r.pCO2 || "—"}</td>
+                      <td className="p-1 text-end">{r.potassium || "—"}</td>
+                      <td className="p-1 text-end">{r.gcs || "—"}</td>
+                      <td className="p-1 text-end">{r.insulinRate || "—"}</td>
+                      <td className="p-1 text-end">{r.urineOutput || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

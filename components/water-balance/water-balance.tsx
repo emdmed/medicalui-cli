@@ -19,7 +19,6 @@
  * @behavior  Click card to enter edit mode. No callbacks — display only.
  */
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -132,147 +131,139 @@ const WaterBalanceCalculator = ({ data }: WaterBalanceProps) => {
   const insensibleLoss = calculateInsensibleLoss(weightNum);
   const endogenousGeneration = calculateEndogenousGeneration(weightNum);
   const defecationLoss = calculateDefecationLoss(defecationCount);
-  const labelClass = "opacity-60 text-xs my-1";
+  const labelClass = "text-[11px] font-heading uppercase tracking-wider text-muted-foreground leading-none";
 
   if (isEditMode) {
     return (
       <div className="w-fit">
-        <Card className="shadow-lg border p-0">
-          <CardContent className="p-2">
-            <div className="flex items-center justify-between mb-1 gap-2">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm">Water Balance</span>
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={saveChanges}
-                  disabled={!isValidEdit()}
-                >
-                  <Check />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={cancelEdit}>
-                  <X />
-                </Button>
-              </div>
+        <div className="border border-border rounded-sm p-2">
+          <div className="flex items-center justify-between -mx-2 -mt-2 mb-1 px-2 py-1.5 bg-secondary rounded-t-sm">
+            <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">Water Balance</span>
+            <div className="flex gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5"
+                onClick={saveChanges}
+                disabled={!isValidEdit()}
+              >
+                <Check className="h-3 w-3" />
+              </Button>
+              <Button size="icon" variant="ghost" className="h-5 w-5" onClick={cancelEdit}>
+                <X className="h-3 w-3" />
+              </Button>
             </div>
+          </div>
 
-            <div className="flex flex-col gap-2 py-2">
-              <Label>In</Label>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className={labelClass}>Oral (mL)</Label>
-                  <Input
-                    value={tempFluidIntakeOral}
-                    onChange={(e) => setTempFluidIntakeOral(e.target.value)}
-                    className="text-end w-[60px]"
-                    placeholder="0"
-                    min="0"
-                    step="50"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>IV (mL)</Label>
-                  <Input
-                    value={tempFluidIntakeIV}
-                    onChange={(e) => setTempFluidIntakeIV(e.target.value)}
-                    className="text-end w-[60px]"
-                    placeholder="0"
-                    min="0"
-                    step="50"
-                  />
-                </div>
+          <div className="flex flex-col gap-2 py-2">
+            <Label className={labelClass}>In</Label>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className={labelClass}>Oral (mL)</Label>
+                <Input
+                  value={tempFluidIntakeOral}
+                  onChange={(e) => setTempFluidIntakeOral(e.target.value)}
+                  className="text-end w-[60px] h-6 text-xs"
+                  placeholder="0"
+                  min="0"
+                  step="50"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>IV (mL)</Label>
+                <Input
+                  value={tempFluidIntakeIV}
+                  onChange={(e) => setTempFluidIntakeIV(e.target.value)}
+                  className="text-end w-[60px] h-6 text-xs"
+                  placeholder="0"
+                  min="0"
+                  step="50"
+                />
               </div>
             </div>
+          </div>
 
-            <div className="flex flex-col gap-2 py-2 border-t">
-              <Label>Out</Label>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className={labelClass}>Urine (mL)</Label>
-                  <Input
-                    value={tempDiuresis}
-                    onChange={(e) => setTempDiuresis(e.target.value)}
-                    className="text-end w-[60px]"
-                    placeholder="0"
-                    min="0"
-                    step="50"
-                  />
-                </div>
-                <div>
-                  <Label className={labelClass}>Stools (#)</Label>
-                  <Input
-                    value={tempDefecationCount}
-                    onChange={(e) => setTempDefecationCount(e.target.value)}
-                    className="text-end w-[60px]"
-                    placeholder="1"
-                    min="0"
-                    max="20"
-                    step="1"
-                  />
-                </div>
+          <div className="flex flex-col gap-2 py-2 border-t border-border/30">
+            <Label className={labelClass}>Out</Label>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className={labelClass}>Urine (mL)</Label>
+                <Input
+                  value={tempDiuresis}
+                  onChange={(e) => setTempDiuresis(e.target.value)}
+                  className="text-end w-[60px] h-6 text-xs"
+                  placeholder="0"
+                  min="0"
+                  step="50"
+                />
+              </div>
+              <div>
+                <Label className={labelClass}>Stools (#)</Label>
+                <Input
+                  value={tempDefecationCount}
+                  onChange={(e) => setTempDefecationCount(e.target.value)}
+                  className="text-end w-[60px] h-6 text-xs"
+                  placeholder="1"
+                  min="0"
+                  max="20"
+                  step="1"
+                />
               </div>
             </div>
-            <div className="py-2 border-t">
-              <Label className={labelClass}>Weight (kg)</Label>
-              <Input
-                value={tempWeight}
-                onChange={(e) => setTempWeight(e.target.value)}
-                className="text-end w-[60px]"
-                placeholder="70"
-                min="0"
-                step="0.1"
-              />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="py-2 border-t border-border/30">
+            <Label className={labelClass}>Weight (kg)</Label>
+            <Input
+              value={tempWeight}
+              onChange={(e) => setTempWeight(e.target.value)}
+              className="text-end w-[60px] h-6 text-xs"
+              placeholder="70"
+              min="0"
+              step="0.1"
+            />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-fit mx-auto">
-      <Card
+    <div className="w-fit">
+      <div
         onClick={enterEditMode}
-        className="cursor-pointer hover:shadow-md transition-shadow duration-200 p-1"
+        className="border border-border rounded-sm p-2 cursor-pointer hover:bg-muted/30 transition-colors"
       >
-        <CardContent className="p-2">
-          <div className="flex justify-between gap-2 items-center">
-            <span className="font-medium">Water balance</span>
+        <div className="flex justify-between gap-2 items-center">
+          <span className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">Water balance</span>
 
-            <div className="text-2xl font-bold">
-              {Number(currentBalance) > 0 ? "+" : ""}
-              {currentBalance || "--"}
-            </div>
+          <div className="text-2xl font-bold">
+            {Number(currentBalance) > 0 ? "+" : ""}
+            {currentBalance || "--"}
           </div>
-          <div className="text-xs space-y-1 py-1">
-            <div className="flex items-center justify-between gap-1 flex-wrap">
-              {/* <Badge variant="outline" className="text-xs">
-                {weight}kg
-              </Badge> */}
-              <Badge variant="default">
-                IN:{" "}
-                {(
-                  safeParseFloat(fluidIntakeOral) +
-                  safeParseFloat(fluidIntakeIV) +
-                  safeParseFloat(endogenousGeneration)
-                ).toFixed(0)}
-                mL
-              </Badge>
-              <Badge variant="secondary">
-                OUT:{" "}
-                {(
-                  safeParseFloat(diuresis) +
-                  safeParseFloat(defecationLoss) +
-                  safeParseFloat(insensibleLoss)
-                ).toFixed(0)}
-                mL
-              </Badge>
-            </div>
+        </div>
+        <div className="text-xs space-y-1 py-1">
+          <div className="flex items-center justify-between gap-1 flex-wrap">
+            <Badge variant="default">
+              IN:{" "}
+              {(
+                safeParseFloat(fluidIntakeOral) +
+                safeParseFloat(fluidIntakeIV) +
+                safeParseFloat(endogenousGeneration)
+              ).toFixed(0)}
+              mL
+            </Badge>
+            <Badge variant="secondary">
+              OUT:{" "}
+              {(
+                safeParseFloat(diuresis) +
+                safeParseFloat(defecationLoss) +
+                safeParseFloat(insensibleLoss)
+              ).toFixed(0)}
+              mL
+            </Badge>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
