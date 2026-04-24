@@ -40,3 +40,15 @@ const subComponents = {
 ```
 
 This allows `npx medprotocol-ui add {sub-component-name}` to install the parent group folder.
+
+### 4. `categories` — assign medical category tags
+
+```js
+const categories = {
+  // ... existing entries
+  "{component-name}": ["{category-1}", "{category-2}"],
+  // e.g., "diabetes": ["endocrine", "internal-medicine"],
+};
+```
+
+A component can belong to multiple categories. Tags are displayed next to each component in `npx medprotocol-ui list` output. Use lowercase, hyphenated names for categories (e.g., `critical-care`, `internal-medicine`).

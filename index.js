@@ -18,7 +18,7 @@ const dependencies = {
   "acid-base": "",
   "bmi": "",
   "cardiology": "",
-  "clinical-notes": "",
+
   "ckd": "",
   "dka": "",
   "nephrology": "",
@@ -40,6 +40,22 @@ const subComponents = {
   "anemia": "nephrology",
   "cardio-metabolic": "nephrology",
   "patient": "base",
+};
+
+// Medical category tags for each component (a component can belong to multiple categories)
+const categories = {
+  "vital-signs":    ["internal-medicine", "emergency"],
+  "acid-base":      ["internal-medicine", "critical-care"],
+  "bmi":            ["internal-medicine"],
+  "cardiology":     ["cardiology"],
+
+  "ckd":            ["nephrology", "internal-medicine"],
+  "dka":            ["endocrine", "internal-medicine", "emergency"],
+  "nephrology":     ["nephrology", "internal-medicine"],
+  "pafi":           ["pulmonology", "critical-care"],
+  "sepsis":         ["internal-medicine", "critical-care", "emergency"],
+  "water-balance":  ["internal-medicine"],
+  "base":           ["general"],
 };
 
 const componentsJsonFilePath = path.join(process.cwd(), "components.json");
@@ -269,12 +285,19 @@ program.command("list").action(async () => {
       console.log("Available components:");
 
       items.forEach((item) => {
+        let name, type;
         if (item.isDirectory()) {
-          console.log(`  ${item.name}/ (folder component)`);
+          name = item.name;
+          type = "folder component";
         } else if (item.name.endsWith(".tsx") || item.name.endsWith(".ts")) {
-          const componentName = item.name.replace(/\.(tsx|ts)$/, "");
-          console.log(`  ${componentName} (file component)`);
+          name = item.name.replace(/\.(tsx|ts)$/, "");
+          type = "file component";
+        } else {
+          return;
         }
+        const tags = categories[name];
+        const tagStr = tags ? ` [${tags.join(", ")}]` : "";
+        console.log(`  ${item.isDirectory() ? name + "/" : name} (${type})${tagStr}`);
       });
     } else {
       console.log("No components found");
