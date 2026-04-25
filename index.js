@@ -239,7 +239,7 @@ program
           process.exit(0);
           return;
         } else {
-          throw new Error(`Component "${str}" not found. Run "medical-ui list" to see available components.`);
+          throw new Error(`Component "${str}" not found. Run "medical-ui-cli list" to see available components.`);
         }
       }
 
