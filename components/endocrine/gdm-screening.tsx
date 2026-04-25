@@ -9,10 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import type { GdmScreeningReading } from "./types/interfaces";
 import { classifyGDM_OneStep, classifyGDM_TwoStep } from "./lib";
-import { useSyncedReadings, useContainerNarrow, ViewToggle, severityBg, HistoryTable } from "./ui-helpers";
+import {
+  useSyncedReadings, useAddForm, AddFormTrigger,
+  useContainerNarrow, ViewToggle, severityBg, HistoryTable,
+} from "./ui-helpers";
 
 export interface GdmScreeningProps {
   data?: GdmScreeningReading[];
@@ -21,7 +24,7 @@ export interface GdmScreeningProps {
 
 export default function GdmScreening({ data, onData }: GdmScreeningProps) {
   const { readings, add, remove } = useSyncedReadings(data, onData);
-  const [adding, setAdding] = useState(false);
+  const addForm = useAddForm();
   const [strategy, setStrategy] = useState<"one-step" | "two-step">("one-step");
   const [gestAge, setGestAge] = useState("");
   const [fasting, setFasting] = useState("");
@@ -48,7 +51,6 @@ export default function GdmScreening({ data, onData }: GdmScreeningProps) {
     setTwoHour("");
     setThreeHour("");
     setGestAge("");
-    setAdding(false);
   };
 
   function classifyReading(r: GdmScreeningReading) {
@@ -65,11 +67,7 @@ export default function GdmScreening({ data, onData }: GdmScreeningProps) {
           <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">GDM Screening</h3>
           <div className="flex items-center gap-1">
             {isNarrow && readings.length > 0 && latest && <ViewToggle view={view} onViewChange={setView} />}
-            {!adding && (
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setAdding(true)}>
-                <Plus className="h-3.5 w-3.5" />
-              </Button>
-            )}
+            {!addForm.adding && <AddFormTrigger onClick={addForm.open} />}
           </div>
         </div>
 
@@ -134,15 +132,15 @@ export default function GdmScreening({ data, onData }: GdmScreeningProps) {
         )}
       </div>
 
-      {adding && (
+      {addForm.adding && (
         <div className="border border-border rounded-sm p-2">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">Add GDM screening</h3>
             <div className="flex gap-0.5">
-              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={handleAdd} disabled={!fasting && !oneHour && !twoHour}>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => { handleAdd(); addForm.close(); }} disabled={!fasting && !oneHour && !twoHour}>
                 <Check className="h-3 w-3" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setAdding(false)}>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={addForm.close}>
                 <X className="h-3 w-3" />
               </Button>
             </div>

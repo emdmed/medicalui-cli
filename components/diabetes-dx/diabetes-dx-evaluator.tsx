@@ -11,6 +11,8 @@
  *   History: Table with A1C, FPG, 2h-PG columns.
  *   Logic: Table 2.1 thresholds. Confirmation: 2 abnormal results across readings = confirmed.
  */
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -51,7 +53,7 @@ const emptyPatient: DiabetesDxPatientData = {
   readings: [],
 };
 
-const DiabetesDxEvaluator = ({ data, onData }: DiabetesDxProps) => {
+export default function DiabetesDxEvaluator({ data, onData }: DiabetesDxProps) {
   const [patientData, setPatientData] = useState<DiabetesDxPatientData>(
     data ?? { ...emptyPatient },
   );
@@ -321,6 +323,4 @@ const DiabetesDxEvaluator = ({ data, onData }: DiabetesDxProps) => {
       </div>
     </div>
   );
-};
-
-export default DiabetesDxEvaluator;
+}

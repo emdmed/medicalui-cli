@@ -11,10 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import type { MasldScreeningReading } from "./types/interfaces";
 import { calculateFIB4, getMASLDRiskStratification, getMASLDTreatmentRecommendation, countRiskFactors } from "./lib";
-import { useSyncedReadings, useContainerNarrow, ViewToggle, severityBg, HistoryTable } from "./ui-helpers";
+import {
+  useSyncedReadings, useAddForm, AddFormTrigger,
+  useContainerNarrow, ViewToggle, severityBg, HistoryTable,
+} from "./ui-helpers";
 
 export interface MasldScreeningProps {
   data?: MasldScreeningReading[];
@@ -37,7 +40,7 @@ const EMPTY_RISK: Record<string, boolean> = {
 
 export default function MasldScreening({ data, onData }: MasldScreeningProps) {
   const { readings, add, remove } = useSyncedReadings(data, onData);
-  const [adding, setAdding] = useState(false);
+  const addForm = useAddForm();
   const [formAge, setFormAge] = useState("");
   const [formAst, setFormAst] = useState("");
   const [formAlt, setFormAlt] = useState("");
@@ -64,7 +67,6 @@ export default function MasldScreening({ data, onData }: MasldScreeningProps) {
     setFormAge(""); setFormAst(""); setFormAlt(""); setFormPlatelets("");
     setFormLsm(""); setFormElf("");
     setFormRisk({ ...EMPTY_RISK });
-    setAdding(false);
   };
 
   return (
@@ -74,11 +76,7 @@ export default function MasldScreening({ data, onData }: MasldScreeningProps) {
           <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">MASLD / MASH Screening</h3>
           <div className="flex items-center gap-1">
             {isNarrow && readings.length > 0 && latest && <ViewToggle view={view} onViewChange={setView} />}
-            {!adding && (
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setAdding(true)}>
-                <Plus className="h-3.5 w-3.5" />
-              </Button>
-            )}
+            {!addForm.adding && <AddFormTrigger onClick={addForm.open} />}
           </div>
         </div>
 
@@ -148,15 +146,15 @@ export default function MasldScreening({ data, onData }: MasldScreeningProps) {
         )}
       </div>
 
-      {adding && (
+      {addForm.adding && (
         <div className="border border-border rounded-sm p-2">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-[11px] font-heading uppercase tracking-widest text-muted-foreground">Add screening assessment</h3>
             <div className="flex gap-0.5">
-              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={handleAdd} disabled={!formAge || !formAst || !formAlt || !formPlatelets}>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => { handleAdd(); addForm.close(); }} disabled={!formAge || !formAst || !formAlt || !formPlatelets}>
                 <Check className="h-3 w-3" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setAdding(false)}>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={addForm.close}>
                 <X className="h-3 w-3" />
               </Button>
             </div>

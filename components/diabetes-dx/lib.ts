@@ -14,7 +14,7 @@ type Severity = "normal" | "warning" | "critical";
 
 export function classifyA1C(a1c: string): { label: string; severity: Severity } {
   const v = sf(a1c);
-  if (v === 0) return { label: "", severity: "normal" };
+  if (v === 0) return { label: "—", severity: "normal" };
   if (v < 5.7) return { label: "Normal", severity: "normal" };
   if (v < 6.5) return { label: "Prediabetes", severity: "warning" };
   return { label: "Diabetes", severity: "critical" };
@@ -22,7 +22,7 @@ export function classifyA1C(a1c: string): { label: string; severity: Severity } 
 
 export function classifyFPG(fpg: string): { label: string; severity: Severity } {
   const v = sf(fpg);
-  if (v === 0) return { label: "", severity: "normal" };
+  if (v === 0) return { label: "—", severity: "normal" };
   if (v < 100) return { label: "Normal", severity: "normal" };
   if (v < 126) return { label: "IFG", severity: "warning" };
   return { label: "Diabetes", severity: "critical" };
@@ -30,7 +30,7 @@ export function classifyFPG(fpg: string): { label: string; severity: Severity } 
 
 export function classify2hPG(value: string): { label: string; severity: Severity } {
   const v = sf(value);
-  if (v === 0) return { label: "", severity: "normal" };
+  if (v === 0) return { label: "—", severity: "normal" };
   if (v < 140) return { label: "Normal", severity: "normal" };
   if (v < 200) return { label: "IGT", severity: "warning" };
   return { label: "Diabetes", severity: "critical" };
@@ -38,7 +38,7 @@ export function classify2hPG(value: string): { label: string; severity: Severity
 
 export function classifyRandomPG(value: string, hasSymptoms: boolean): { label: string; severity: Severity } {
   const v = sf(value);
-  if (v === 0) return { label: "", severity: "normal" };
+  if (v === 0) return { label: "—", severity: "normal" };
   if (v >= 200 && hasSymptoms) return { label: "Diabetes", severity: "critical" };
   if (v >= 200) return { label: "≥200 (no symptoms)", severity: "warning" };
   return { label: "Normal", severity: "normal" };
