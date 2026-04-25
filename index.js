@@ -20,16 +20,20 @@ const dependencies = {
   "cardiology": "",
 
   "ckd": "",
+  "diabetes-dx": "",
   "dka": "",
+  "endocrine": "",
   "nephrology": "",
   "pafi": "",
   "sepsis": "",
   "water-balance": "",
+  "hepatology": "",
   "base": "",
 };
 
 // Groups allow installing multiple folder components at once
 const groups = {
+  "diabetes-dx": ["diabetes-dx", "endocrine"],
   nephrology: ["ckd", "nephrology"],
   base: ["base"],
 };
@@ -39,6 +43,11 @@ const subComponents = {
   "phospho-calcic": "nephrology",
   "anemia": "nephrology",
   "cardio-metabolic": "nephrology",
+  "t1d-staging": "endocrine",
+  "t1-vs-t2": "endocrine",
+  "t2d-screening": "endocrine",
+  "gdm-screening": "endocrine",
+  "masld-screening": "hepatology",
   "patient": "base",
 };
 
@@ -50,11 +59,14 @@ const categories = {
   "cardiology":     ["cardiology"],
 
   "ckd":            ["nephrology", "internal-medicine"],
+  "diabetes-dx":    ["endocrine", "internal-medicine"],
   "dka":            ["endocrine", "internal-medicine", "emergency"],
+  "endocrine":      ["endocrine", "internal-medicine"],
   "nephrology":     ["nephrology", "internal-medicine"],
   "pafi":           ["pulmonology", "critical-care"],
   "sepsis":         ["internal-medicine", "critical-care", "emergency"],
   "water-balance":  ["internal-medicine"],
+  "hepatology":     ["hepatology", "internal-medicine", "gastroenterology"],
   "base":           ["general"],
 };
 
