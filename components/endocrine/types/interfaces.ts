@@ -1,3 +1,5 @@
+import type { TraceEntry } from "../../base/trace";
+
 // ─── T1D Staging ──────────────────────────────────────────────────
 
 export interface T1dStagingReading {
@@ -12,6 +14,7 @@ export interface T1dStagingReading {
   twohPG: string;    // mg/dL
   a1c: string;       // %
   hasSymptoms: boolean;
+  trace?: TraceEntry[];
 }
 
 // ─── T1 vs T2 Classification ─────────────────────────────────────
@@ -28,6 +31,7 @@ export interface T1vsT2Reading {
   dkaHistory: boolean;
   otherAutoimmune: boolean;
   onInsulin: boolean;
+  trace?: TraceEntry[];
 }
 
 // ─── T2D Screening Eligibility ───────────────────────────────────
@@ -50,6 +54,7 @@ export interface T2dScreeningReading {
     priorPrediabetes: boolean;
     priorGDM: boolean;
   };
+  trace?: TraceEntry[];
 }
 
 // ─── GDM Screening ───────────────────────────────────────────────
@@ -63,4 +68,5 @@ export interface GdmScreeningReading {
   oneHour: string;         // mg/dL
   twoHour: string;         // mg/dL
   threeHour: string;       // mg/dL (two-step only)
+  trace?: TraceEntry[];
 }

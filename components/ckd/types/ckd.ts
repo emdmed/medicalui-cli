@@ -1,3 +1,5 @@
+import type { TraceEntry } from "../../base/trace";
+
 /**
  * Type definitions for the CKD (Chronic Kidney Disease) Evaluation component.
  *
@@ -19,6 +21,7 @@ export interface CKDReading {
   egfr: number;          // mL/min/1.73m²
   gfrCategory: string;   // G1–G5
   albCategory: string;   // A1–A3
+  trace?: TraceEntry[];
 }
 
 export type CKDCauseCategory =

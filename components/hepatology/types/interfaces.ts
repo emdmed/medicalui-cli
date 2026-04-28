@@ -1,3 +1,5 @@
+import type { TraceEntry } from "../../base/trace";
+
 // ─── MASLD/MASH Screening ────────────────────────────────────────
 
 export interface MasldScreeningReading {
@@ -17,4 +19,5 @@ export interface MasldScreeningReading {
     elevatedTransaminases: boolean;
     hepaticSteatosis: boolean;
   };
+  trace?: TraceEntry[];
 }

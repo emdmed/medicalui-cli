@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { T1vsT2Reading } from "./types/interfaces";
 import { classifyT1vsT2 } from "./lib";
+import { Trace } from "../base/trace";
+import { ADA_2026_SECTION_2 } from "../base/sources";
 import {
   useSyncedReadings, useAddForm, AddFormTrigger, AddForm,
   HistoryTable, useContainerNarrow, ViewToggle, severityBg,
@@ -42,11 +44,22 @@ export default function T1vsT2({ data, onData }: T1vsT2Props) {
   const latest = readings[readings.length - 1] ?? null;
 
   const handleAdd = () => {
+    const t = new Trace();
+    t.record("classifyT1vsT2", {
+      age: form.age, bmi: form.bmi, hasAutoantibodies: formBools.hasAutoantibodies,
+      cPeptide: form.cPeptide, familyHxT1D: formBools.familyHxT1D, familyHxT2D: formBools.familyHxT2D,
+      dkaHistory: formBools.dkaHistory, otherAutoimmune: formBools.otherAutoimmune, onInsulin: formBools.onInsulin,
+    }, classifyT1vsT2(
+      form.age, form.bmi, formBools.hasAutoantibodies, form.cPeptide,
+      formBools.familyHxT1D, formBools.familyHxT2D, formBools.dkaHistory,
+      formBools.otherAutoimmune, formBools.onInsulin,
+    ), ADA_2026_SECTION_2);
     add({
       id: crypto.randomUUID(),
       date: new Date().toISOString().slice(0, 10),
       ...form,
       ...formBools,
+      trace: t.toJSON(),
     });
     setForm({ ...EMPTY });
     setFormBools({ hasAutoantibodies: false, familyHxT1D: false, familyHxT2D: false, dkaHistory: false, otherAutoimmune: false, onInsulin: false });

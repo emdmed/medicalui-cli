@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { T1dStagingReading } from "./types/interfaces";
 import { classifyT1DStage } from "./lib";
+import { Trace } from "../base/trace";
+import { ADA_2026_SECTION_2 } from "../base/sources";
 import {
   useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm,
   HistoryTable, V, useContainerNarrow, ViewToggle, severityBg,
@@ -51,15 +53,19 @@ export default function T1dStaging({ data, onData }: T1dStagingProps) {
 
   const handleAdd = () => {
     const abCount = [formAbs.gad65, formAbs.ia2, formAbs.znt8, formAbs.insulinAb].filter(Boolean).length;
+    const autoantibodyCount = form.autoantibodyCount || String(abCount);
+    const t = new Trace();
+    t.record("classifyT1DStage", { autoantibodyCount, fpg: form.fpg, twohPG: form.twohPG, a1c: form.a1c, hasSymptoms: formSymptoms }, classifyT1DStage(autoantibodyCount, form.fpg, form.twohPG, form.a1c, formSymptoms), ADA_2026_SECTION_2);
     add({
       id: crypto.randomUUID(),
       date: new Date().toISOString().slice(0, 10),
-      autoantibodyCount: form.autoantibodyCount || String(abCount),
+      autoantibodyCount,
       ...formAbs,
       fpg: form.fpg,
       twohPG: form.twohPG,
       a1c: form.a1c,
       hasSymptoms: formSymptoms,
+      trace: t.toJSON(),
     });
     setForm({ ...EMPTY });
     setFormAbs({ gad65: false, ia2: false, znt8: false, insulinAb: false });

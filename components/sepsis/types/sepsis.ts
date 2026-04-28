@@ -1,3 +1,5 @@
+import type { TraceEntry } from "../../base/trace";
+
 /**
  * Type definitions for the Sepsis/SOFA Monitoring component.
  *
@@ -47,6 +49,7 @@ export interface SepsisReading {
   // Infection
   suspectedInfection: boolean;
   infectionSource: string;
+  trace?: TraceEntry[];
 }
 
 export interface Hour1Bundle {

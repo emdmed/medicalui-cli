@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 import type { GdmScreeningReading } from "./types/interfaces";
 import { classifyGDM_OneStep, classifyGDM_TwoStep } from "./lib";
+import { Trace } from "../base/trace";
+import { IADPSG_2010, CARPENTER_COUSTAN } from "../base/sources";
 import {
   useSyncedReadings, useAddForm, AddFormTrigger,
   useContainerNarrow, ViewToggle, severityBg, HistoryTable,
@@ -36,6 +38,12 @@ export default function GdmScreening({ data, onData }: GdmScreeningProps) {
   const latest = readings[readings.length - 1] ?? null;
 
   const handleAdd = () => {
+    const t = new Trace();
+    if (strategy === "one-step") {
+      t.record("classifyGDM_OneStep", { fasting, oneHour, twoHour }, classifyGDM_OneStep(fasting, oneHour, twoHour), IADPSG_2010);
+    } else {
+      t.record("classifyGDM_TwoStep", { fasting, oneHour, twoHour, threeHour }, classifyGDM_TwoStep(fasting, oneHour, twoHour, threeHour), CARPENTER_COUSTAN);
+    }
     add({
       id: crypto.randomUUID(),
       date: new Date().toISOString().slice(0, 10),
@@ -45,6 +53,7 @@ export default function GdmScreening({ data, onData }: GdmScreeningProps) {
       oneHour,
       twoHour,
       threeHour,
+      trace: t.toJSON(),
     });
     setFasting("");
     setOneHour("");

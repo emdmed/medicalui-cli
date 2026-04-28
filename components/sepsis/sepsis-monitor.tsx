@@ -59,6 +59,8 @@ import type {
   SepsisProps,
   Hour1Bundle,
 } from "./types/sepsis";
+import { Trace } from "../base/trace";
+import { SEPSIS_3_2016 } from "../base/sources";
 
 const severityColor = (level: string): string => {
   switch (level) {
@@ -228,6 +230,10 @@ const SepsisMonitor = ({ data, onData }: SepsisProps) => {
   };
 
   const addReading = () => {
+    const t = new Trace();
+    t.record("calculateTotalSOFA", { weight: patientData.weight }, calculateTotalSOFA(newReading as unknown as SepsisReading, patientData.weight, "1"), SEPSIS_3_2016);
+    t.record("calculateQSOFA", { respiratoryRate: newReading.respiratoryRate, sbp: newReading.sbp, gcs: newReading.gcs }, calculateQSOFA(newReading.respiratoryRate, newReading.sbp, newReading.gcs), SEPSIS_3_2016);
+
     const reading: SepsisReading = {
       id: Date.now().toString(),
       timestamp: Math.floor(Date.now() / 1000),
@@ -249,6 +255,7 @@ const SepsisMonitor = ({ data, onData }: SepsisProps) => {
       lactate: newReading.lactate,
       suspectedInfection: newReading.suspectedInfection,
       infectionSource: newReading.infectionSource,
+      trace: t.toJSON(),
     };
 
     setPatientData((prev) => ({

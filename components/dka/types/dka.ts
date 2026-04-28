@@ -1,3 +1,5 @@
+import type { TraceEntry } from "../../base/trace";
+
 /**
  * Type definitions for the DKA Monitoring component.
  *
@@ -23,6 +25,7 @@ export interface DKAReading {
   sodium: string;   // mEq/L (Na+)
   chloride: string; // mEq/L (Cl-)
   albumin: string;  // g/dL
+  trace?: TraceEntry[];
 }
 
 export interface DKAPatientData {

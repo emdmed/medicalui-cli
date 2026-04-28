@@ -1,3 +1,5 @@
+import type { TraceEntry } from "../../base/trace";
+
 // ─── Cardio-metabolic ───────────────────────────────────────────────
 
 export interface CardioMetabolicReading {
@@ -13,6 +15,7 @@ export interface CardioMetabolicReading {
   dbp: string; // mmHg
   lpa: string; // mg/dL — Lp(a), lifetime marker
   apoB: string; // mg/dL — ApoB
+  trace?: TraceEntry[];
 }
 
 // ─── Phospho-calcic ────────────────────────────────────────────────
@@ -25,6 +28,7 @@ export interface PhosphoCalcicReading {
   pth: string; // pg/mL
   vitaminD: string; // ng/mL (25-OH)
   albumin: string; // g/dL (for corrected Ca)
+  trace?: TraceEntry[];
 }
 
 // ─── Anemia ────────────────────────────────────────────────────────
@@ -38,4 +42,5 @@ export interface AnemiaReading {
   iron: string; // µg/dL
   reticulocytes: string; // %
   sex?: string; // "male" | "female"
+  trace?: TraceEntry[];
 }

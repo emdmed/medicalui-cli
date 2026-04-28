@@ -57,6 +57,8 @@ import {
   getCKDSeverity,
 } from "./lib";
 import type { CKDPatientData, CKDReading, CKDProps, CKDCauseCategory } from "./types/ckd";
+import { Trace } from "../base/trace";
+import { CKD_EPI_2021, KDIGO_2024_CKD } from "../base/sources";
 import { useContainerNarrow, ViewToggle } from "@/components/nephrology/ui-helpers";
 
 const severityColor = (level: string): string => {
@@ -220,9 +222,10 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
   };
 
   const addReading = () => {
-    const egfr = calculateEGFR(newCreatinine, patientData.age, patientData.sex);
-    const gfrCategory = classifyGFRCategory(String(egfr));
-    const albCategory = classifyAlbuminuriaCategory(newACR || "0");
+    const t = new Trace();
+    const egfr = t.record("calculateEGFR", { creatinine: newCreatinine, age: patientData.age, sex: patientData.sex }, calculateEGFR(newCreatinine, patientData.age, patientData.sex), CKD_EPI_2021);
+    const gfrCategory = t.record("classifyGFRCategory", { egfr: String(egfr) }, classifyGFRCategory(String(egfr)), KDIGO_2024_CKD);
+    const albCategory = t.record("classifyAlbuminuriaCategory", { acr: newACR || "0" }, classifyAlbuminuriaCategory(newACR || "0"), KDIGO_2024_CKD);
 
     const reading: CKDReading = {
       id: Date.now().toString(),
@@ -232,6 +235,7 @@ const CKDEvaluator = ({ data, onData }: CKDProps) => {
       egfr,
       gfrCategory,
       albCategory,
+      trace: t.toJSON(),
     };
 
     setPatientData((prev) => ({

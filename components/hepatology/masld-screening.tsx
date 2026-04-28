@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 import type { MasldScreeningReading } from "./types/interfaces";
 import { calculateFIB4, getMASLDRiskStratification, getMASLDTreatmentRecommendation, countRiskFactors } from "./lib";
+import { Trace } from "../base/trace";
+import { ADA_2026_FIG_4_3 } from "../base/sources";
 import {
   useSyncedReadings, useAddForm, AddFormTrigger,
   useContainerNarrow, ViewToggle, severityBg, HistoryTable,
@@ -53,6 +55,9 @@ export default function MasldScreening({ data, onData }: MasldScreeningProps) {
   const latest = readings[readings.length - 1] ?? null;
 
   const handleAdd = () => {
+    const t = new Trace();
+    const fib4 = t.record("calculateFIB4", { age: formAge, ast: formAst, alt: formAlt, platelets: formPlatelets }, calculateFIB4(formAge, formAst, formAlt, formPlatelets), ADA_2026_FIG_4_3);
+    t.record("getMASLDRiskStratification", { fib4Score: fib4.score, fib4Tier: fib4.tier, age: formAge }, getMASLDRiskStratification(fib4.score, fib4.tier, formAge, formLsm, formElf), ADA_2026_FIG_4_3);
     add({
       id: crypto.randomUUID(),
       date: new Date().toISOString().slice(0, 10),
@@ -63,6 +68,7 @@ export default function MasldScreening({ data, onData }: MasldScreeningProps) {
       lsm: formLsm,
       elf: formElf,
       riskFactors: formRisk as MasldScreeningReading["riskFactors"],
+      trace: t.toJSON(),
     });
     setFormAge(""); setFormAst(""); setFormAlt(""); setFormPlatelets("");
     setFormLsm(""); setFormElf("");

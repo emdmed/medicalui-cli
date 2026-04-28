@@ -29,6 +29,8 @@ import {
   checkConfirmation,
 } from "./lib";
 import type { DiabetesDxPatientData, DiabetesDxReading, DiabetesDxProps } from "./types/diabetes-dx";
+import { Trace } from "../base/trace";
+import { ADA_2026_TABLE_2_1 } from "../base/sources";
 import { useContainerNarrow, ViewToggle } from "@/components/endocrine/ui-helpers";
 
 const severityColor = (s: string): string => {
@@ -109,6 +111,12 @@ export default function DiabetesDxEvaluator({ data, onData }: DiabetesDxProps) {
 
   const addReading = () => {
     if (!newA1c && !newFpg && !new2hPG && !newRandomPG) return;
+    const t = new Trace();
+    if (newA1c) t.record("classifyA1C", { a1c: newA1c }, classifyA1C(newA1c), ADA_2026_TABLE_2_1);
+    if (newFpg) t.record("classifyFPG", { fpg: newFpg }, classifyFPG(newFpg), ADA_2026_TABLE_2_1);
+    if (new2hPG) t.record("classify2hPG", { twohPG: new2hPG }, classify2hPG(new2hPG), ADA_2026_TABLE_2_1);
+    if (newRandomPG) t.record("classifyRandomPG", { randomPG: newRandomPG, hasSymptoms: patientData.hasSymptoms }, classifyRandomPG(newRandomPG, patientData.hasSymptoms), ADA_2026_TABLE_2_1);
+    t.record("getDiagnosis", { a1c: newA1c, fpg: newFpg, twohPG: new2hPG, randomPG: newRandomPG, hasSymptoms: patientData.hasSymptoms }, getDiagnosis(newA1c, newFpg, new2hPG, newRandomPG, patientData.hasSymptoms), ADA_2026_TABLE_2_1);
     const reading: DiabetesDxReading = {
       id: Date.now().toString(),
       date: newDate,
@@ -116,6 +124,7 @@ export default function DiabetesDxEvaluator({ data, onData }: DiabetesDxProps) {
       fpg: newFpg,
       twohPG: new2hPG,
       randomPG: newRandomPG,
+      trace: t.toJSON(),
     };
     setPatientData((prev) => ({
       ...prev,

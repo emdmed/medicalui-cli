@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 import type { T2dScreeningReading } from "./types/interfaces";
 import { getT2DScreeningRecommendation } from "./lib";
+import { Trace } from "../base/trace";
+import { ADA_2026_SECTION_2 } from "../base/sources";
 import {
   useSyncedReadings, useAddForm, AddFormTrigger,
   useContainerNarrow, ViewToggle, severityBg, HistoryTable,
@@ -55,6 +57,8 @@ export default function T2dScreening({ data, onData }: T2dScreeningProps) {
   const latest = readings[readings.length - 1] ?? null;
 
   const handleAdd = () => {
+    const t = new Trace();
+    t.record("getT2DScreeningRecommendation", { age: formAge, bmi: formBmi, ethnicity: formEthnicity }, getT2DScreeningRecommendation(formAge, formBmi, formEthnicity, formRisk as T2dScreeningReading["riskFactors"]), ADA_2026_SECTION_2);
     add({
       id: crypto.randomUUID(),
       date: new Date().toISOString().slice(0, 10),
@@ -62,6 +66,7 @@ export default function T2dScreening({ data, onData }: T2dScreeningProps) {
       bmi: formBmi,
       ethnicity: formEthnicity,
       riskFactors: formRisk as T2dScreeningReading["riskFactors"],
+      trace: t.toJSON(),
     });
     setFormAge("");
     setFormBmi("");

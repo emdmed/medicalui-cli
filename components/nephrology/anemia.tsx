@@ -8,6 +8,8 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import type { AnemiaReading } from "./types/interfaces";
 import { classifyHemoglobin, classifyAnemiaBySex, classifyFerritin, classifyTSAT, needsIronSupplementation, checkESAEligibility } from "./lib";
+import { Trace } from "../base/trace";
+import { KDIGO_2012_ANEMIA } from "../base/sources";
 import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V, useContainerNarrow, ViewToggle } from "./ui-helpers";
 
 export interface AnemiaProps {
@@ -45,11 +47,17 @@ export default function Anemia({ data, onData, sex: propSex }: AnemiaProps) {
 
   const handleAdd = () => {
     const sexVal = formSex || propSex || undefined;
+    const t = new Trace();
+    if (form.hemoglobin) t.record("classifyHemoglobin", { hemoglobin: form.hemoglobin }, classifyHemoglobin(form.hemoglobin), KDIGO_2012_ANEMIA);
+    if (form.ferritin) t.record("classifyFerritin", { ferritin: form.ferritin }, classifyFerritin(form.ferritin), KDIGO_2012_ANEMIA);
+    if (form.tsat) t.record("classifyTSAT", { tsat: form.tsat }, classifyTSAT(form.tsat), KDIGO_2012_ANEMIA);
+    if (form.hemoglobin && sexVal) t.record("classifyAnemiaBySex", { hemoglobin: form.hemoglobin, sex: sexVal }, classifyAnemiaBySex(form.hemoglobin, sexVal), KDIGO_2012_ANEMIA);
     add({
       id: crypto.randomUUID(),
       date: new Date().toISOString().slice(0, 10),
       ...form,
       ...(sexVal ? { sex: sexVal } : {}),
+      trace: t.toJSON(),
     });
     setForm({ ...EMPTY });
     setFormSex("");

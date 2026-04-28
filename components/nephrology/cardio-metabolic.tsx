@@ -7,6 +7,8 @@
 import { useState } from "react";
 import type { CardioMetabolicReading } from "./types/interfaces";
 import { classifyLDL, classifyHbA1c, classifyBPInCKD, classifyTriglycerides, classifyLpa, classifyNonHDL, classifyApoB } from "./lib";
+import { Trace } from "../base/trace";
+import { KDIGO_2021_LIPID, KDIGO_2021_BP } from "../base/sources";
 import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V, useContainerNarrow, ViewToggle } from "./ui-helpers";
 
 export interface CardioMetabolicProps {
@@ -66,7 +68,20 @@ export default function CardioMetabolic({ data, onData, gfrCategory, age, hasDia
   }
 
   const handleAdd = () => {
-    add({ id: crypto.randomUUID(), date: new Date().toISOString().slice(0, 10), ...form });
+    const t = new Trace();
+    if (form.ldl) t.record("classifyLDL", { ldl: form.ldl }, classifyLDL(form.ldl), KDIGO_2021_LIPID);
+    if (form.hba1c) t.record("classifyHbA1c", { hba1c: form.hba1c }, classifyHbA1c(form.hba1c), KDIGO_2021_LIPID);
+    if (form.sbp || form.dbp) t.record("classifyBPInCKD", { sbp: form.sbp, dbp: form.dbp }, classifyBPInCKD(form.sbp, form.dbp), KDIGO_2021_BP);
+    if (form.triglycerides) t.record("classifyTriglycerides", { triglycerides: form.triglycerides }, classifyTriglycerides(form.triglycerides), KDIGO_2021_LIPID);
+    if (form.lpa) t.record("classifyLpa", { lpa: form.lpa }, classifyLpa(form.lpa), KDIGO_2021_LIPID);
+    if (form.apoB) t.record("classifyApoB", { apoB: form.apoB }, classifyApoB(form.apoB), KDIGO_2021_LIPID);
+    const tc = parseFloat(form.totalCholesterol);
+    const hdlVal = parseFloat(form.hdl);
+    if (tc && hdlVal) {
+      const nonHdlVal = tc - hdlVal;
+      t.record("classifyNonHDL", { nonHdl: nonHdlVal }, classifyNonHDL(nonHdlVal), KDIGO_2021_LIPID);
+    }
+    add({ id: crypto.randomUUID(), date: new Date().toISOString().slice(0, 10), ...form, trace: t.toJSON() });
     setForm({ ...EMPTY });
   };
 

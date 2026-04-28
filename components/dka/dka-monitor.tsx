@@ -51,6 +51,8 @@ import {
 import { analyze } from "../acid-base/analyze";
 import Popup from "../acid-base/components/popup";
 import type { DKAPatientData, DKAReading, DKAProps } from "./types/dka";
+import { Trace } from "../base/trace";
+import { ADA_DKA_2024 } from "../base/sources";
 
 const severityColor = (level: string): string => {
   switch (level) {
@@ -229,6 +231,14 @@ const DKAMonitor = ({ data, onData }: DKAProps) => {
   };
 
   const addReading = () => {
+    const t = new Trace();
+    if (newReading.potassium) t.record("classifyPotassium", { potassium: newReading.potassium }, classifyPotassium(newReading.potassium), ADA_DKA_2024);
+    if (newReading.gcs) t.record("classifyGCS", { gcs: newReading.gcs }, classifyGCS(newReading.gcs), ADA_DKA_2024);
+    if (newReading.glucose && previous) {
+      const hrs = String(hoursBetween({ timestamp: Math.floor(Date.now() / 1000) } as DKAReading, previous));
+      t.record("calculateGlucoseReductionRate", { current: newReading.glucose, previous: previous.glucose, hours: hrs }, calculateGlucoseReductionRate(newReading.glucose, previous.glucose, hrs), ADA_DKA_2024);
+    }
+
     const reading: DKAReading = {
       id: Date.now().toString(),
       timestamp: Math.floor(Date.now() / 1000),
@@ -244,6 +254,7 @@ const DKAMonitor = ({ data, onData }: DKAProps) => {
       sodium: newReading.sodium,
       chloride: newReading.chloride,
       albumin: newReading.albumin,
+      trace: t.toJSON(),
     };
 
     setPatientData((prev) => ({

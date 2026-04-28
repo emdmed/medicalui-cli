@@ -1,3 +1,5 @@
+import type { TraceEntry } from "../../base/trace";
+
 /**
  * Type definitions for the Diabetes Diagnosis Classifier component.
  *
@@ -14,6 +16,7 @@ export interface DiabetesDxReading {
   fpg: string;        // mg/dL
   twohPG: string;     // mg/dL
   randomPG: string;   // mg/dL
+  trace?: TraceEntry[];
 }
 
 export interface DiabetesDxPatientData {

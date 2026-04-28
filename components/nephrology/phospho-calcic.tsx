@@ -8,6 +8,8 @@ import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { PhosphoCalcicReading } from "./types/interfaces";
 import { calculateCaPhProduct, calculateCorrectedCalcium, classifyCalcium, classifyPhosphorus, classifyPTH, classifyVitaminD, classifyCaPhProduct, getPhosphateRecommendation, getPTHRecommendation, getVitaminDRecommendation, getCKDMBDMonitoring } from "./lib";
+import { Trace } from "../base/trace";
+import { KDIGO_CKD_MBD_2017 } from "../base/sources";
 import { useSyncedReadings, ValueGrid, useAddForm, AddFormTrigger, AddForm, HistoryTable, V, severityBg, useContainerNarrow, ViewToggle } from "./ui-helpers";
 
 export interface PhosphoCalcicProps {
@@ -55,7 +57,20 @@ export default function PhosphoCalcic({ data, onData, gfrCategory }: PhosphoCalc
   const latest = readings[readings.length - 1] ?? null;
 
   const handleAdd = () => {
-    add({ id: crypto.randomUUID(), date: new Date().toISOString().slice(0, 10), ...form });
+    const t = new Trace();
+    if (form.calcium) t.record("classifyCalcium", { calcium: form.calcium }, classifyCalcium(form.calcium), KDIGO_CKD_MBD_2017);
+    if (form.phosphorus) t.record("classifyPhosphorus", { phosphorus: form.phosphorus }, classifyPhosphorus(form.phosphorus), KDIGO_CKD_MBD_2017);
+    if (form.pth) t.record("classifyPTH", { pth: form.pth, gfrCategory: gfrCategory ?? "" }, classifyPTH(form.pth, gfrCategory), KDIGO_CKD_MBD_2017);
+    if (form.vitaminD) t.record("classifyVitaminD", { vitaminD: form.vitaminD }, classifyVitaminD(form.vitaminD), KDIGO_CKD_MBD_2017);
+    if (form.calcium && form.phosphorus) {
+      const product = calculateCaPhProduct(form.calcium, form.phosphorus);
+      t.record("calculateCaPhProduct", { calcium: form.calcium, phosphorus: form.phosphorus }, product, KDIGO_CKD_MBD_2017);
+      if (product !== null) t.record("classifyCaPhProduct", { product }, classifyCaPhProduct(product), KDIGO_CKD_MBD_2017);
+    }
+    if (form.calcium && form.albumin) {
+      t.record("calculateCorrectedCalcium", { calcium: form.calcium, albumin: form.albumin }, calculateCorrectedCalcium(form.calcium, form.albumin), KDIGO_CKD_MBD_2017);
+    }
+    add({ id: crypto.randomUUID(), date: new Date().toISOString().slice(0, 10), ...form, trace: t.toJSON() });
     setForm({ ...EMPTY });
   };
 
